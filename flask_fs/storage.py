@@ -6,7 +6,8 @@ import os.path
 
 from flask import current_app, url_for, request, abort
 from six.moves.urllib.parse import urljoin
-from werkzeug import secure_filename, FileStorage, cached_property
+from werkzeug.utils import secure_filename, cached_property
+from werkzeug.datastructures import FileStorage
 
 from .errors import UnauthorizedFileType, FileExists, OperationNotSupported, FileNotFound
 from .files import DEFAULTS, extension, lower_extension
@@ -196,12 +197,12 @@ class Storage(object):
         '''
         This tells whether a file is allowed.
 
-        It should return `True` if the given :class:`~werkzeug.FileStorage` object
+        It should return `True` if the given :class:`~werkzeug.datastructures.FileStorage` object
         can be saved with the given basename, and `False` if it can't.
         The default implementation just checks the extension,
         so you can override this if you want.
 
-        :param storage: The `werkzeug.FileStorage` to check.
+        :param storage: The `werkzeug.datastructures.FileStorage` to check.
         :param basename: The basename it will be saved under.
         '''
         return self.extension_allowed(extension(basename))
@@ -263,15 +264,15 @@ class Storage(object):
 
     def save(self, file_or_wfs, filename=None, prefix=None, overwrite=None):
         '''
-        Saves a `file` or a :class:`~werkzeug.FileStorage` into this storage.
+        Saves a `file` or a :class:`~werkzeug.datastructures.FileStorage` into this storage.
 
         If the upload is not allowed, an :exc:`UploadNotAllowed` error will be raised.
         Otherwise, the file will be saved and its name (including the folder)
         will be returned.
 
-        :param file_or_wfs: a file or :class:`werkzeug.FileStorage` file to save.
+        :param file_or_wfs: a file or :class:`werkzeug.datastructures.FileStorage` file to save.
         :param string filename: The expected filename in the storage.
-            Optionnal with a :class:`~werkzeug.FileStorage` but allow to override clietn value
+            Optionnal with a :class:`~werkzeug.datastructures.FileStorage` but allow to override clietn value
         :param string prefix: a path or a callable returning a path to be prepended to the filename.
         :param bool overwrite: if specified, override the storage default value.
 

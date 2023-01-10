@@ -58,7 +58,7 @@ class BaseBackend(object):
 
     def save(self, file_or_wfs, filename, overwrite=False):
         '''
-        Save a file-like object or a `werkzeug.FileStorage` with the specified filename.
+        Save a file-like object or a `werkzeug.datastructures.FileStorage` with the specified filename.
 
         :param storage: The file or the storage to be saved.
         :param filename: The destination in the storage.
