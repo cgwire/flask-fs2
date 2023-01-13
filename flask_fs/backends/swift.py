@@ -28,8 +28,18 @@ class SwiftBackend(BaseBackend):
     def __init__(self, name, config):
         super(SwiftBackend, self).__init__(name, config)
 
+        version = "3"
+        if "2.0" in config.authurl:
+            version = "2.0"
         self.conn = swiftclient.Connection(
-            user=config.user, key=config.key, authurl=config.authurl
+            user=config.user,
+            key=config.key,
+            authurl=config.authurl,
+            auth_version=version,
+            os_options={
+                "tenant_name": config.tenant_name,
+                "region_name": config.region_name,
+            },
         )
         self.conn.put_container(self.name)
 

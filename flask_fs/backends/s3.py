@@ -44,10 +44,27 @@ class S3Backend(BaseBackend):
         )
         self.bucket = self.s3.Bucket(name)
 
+        bucket_exists = True
+
         try:
-            self.bucket.create()
-        except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
-            pass
+            self.s3.meta.client.head_bucket(Bucket=name)
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code == "404":
+                bucket_exists = False
+
+        if not bucket_exists:
+            try:
+                if config.region == "us-east-1":
+                    self.bucket.create()
+                else:
+                    self.bucket.create(
+                        CreateBucketConfiguration={
+                            "LocationConstraint": config.region
+                        }
+                    )
+            except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
+                pass
 
     def exists(self, filename):
         try:
@@ -69,7 +86,7 @@ class S3Backend(BaseBackend):
 
     def read(self, filename):
         obj = self.bucket.Object(filename).get()
-        return obj["Body"].read()
+        return obj["Body"].iter_chunks(1024 * 1024)
 
     def write(self, filename, content):
         return self.bucket.put_object(
