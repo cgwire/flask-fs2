@@ -53,7 +53,9 @@ class SwiftBackend(BaseBackend):
             self.write(filename, f.getvalue())
 
     def read(self, filename):
-        _, data = self.conn.get_object(self.name, filename)
+        _, data = self.conn.get_object(
+            self.name, filename, resp_chunk_size=1024 * 1024
+        )
         return data
 
     def write(self, filename, content):
