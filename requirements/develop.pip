@@ -1,5 +1,6 @@
 invoke==1.7.3
 tox==4.2.6
+black==22.12.0
 -r test.pip
 -r doc.pip
 -r qa.pip

@@ -3,27 +3,27 @@ from __future__ import unicode_literals
 
 import io
 import os
-import six
 
 from flask import Flask
 from werkzeug.datastructures import FileStorage
 
 import pytest
 
-PNG_FILE = os.path.join(os.path.dirname(__file__), 'flask.png')
-JPG_FILE = os.path.join(os.path.dirname(__file__), 'flask.jpg')
+PNG_FILE = os.path.join(os.path.dirname(__file__), "flask.png")
+JPG_FILE = os.path.join(os.path.dirname(__file__), "flask.jpg")
 
 
 class TestConfig:
     TESTING = True
-    MONGODB_DB = 'flask-fs-test'
-    MONGODB_HOST = 'localhost'
+    MONGODB_DB = "flask-fs-test"
+    MONGODB_HOST = "localhost"
     MONGODB_PORT = 27017
 
 
 class TestFlask(Flask):
     def configure(self, *storages, **configs):
         import flask_fs as fs
+
         for key, value in configs.items():
             self.config[key] = value
         fs.init_app(self, *storages)
@@ -31,7 +31,7 @@ class TestFlask(Flask):
 
 @pytest.fixture
 def app():
-    app = TestFlask('flaskfs-tests')
+    app = TestFlask("flaskfs-tests")
     app.config.from_object(TestConfig)
     yield app
 
@@ -54,16 +54,14 @@ def jpgfile():
 class Utils(object):
     def filestorage(self, filename, content, content_type=None):
         return FileStorage(
-            self.file(content),
-            filename,
-            content_type=content_type
+            self.file(content), filename, content_type=content_type
         )
 
     def file(self, content):
-        if isinstance(content, six.binary_type):
+        if isinstance(content, bytes):
             return io.BytesIO(content)
-        elif isinstance(content, six.string_types):
-            return io.BytesIO(content.encode('utf-8'))
+        elif isinstance(content, str):
+            return io.BytesIO(content.encode("utf-8"))
         else:
             return content
 
@@ -75,6 +73,6 @@ def utils(faker):
 
 @pytest.fixture
 def mock_backend(app, mocker):
-    app.config['FS_BACKEND'] = 'mock'
-    mock = mocker.patch('flask_fs.backends.mock.MockBackend')
+    app.config["FS_BACKEND"] = "mock"
+    mock = mocker.patch("flask_fs.backends.mock.MockBackend")
     yield mock
