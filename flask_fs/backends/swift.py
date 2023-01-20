@@ -23,23 +23,22 @@ class SwiftBackend(BaseBackend):
     - `authurl`: The Swift Auth URL
     - `user`: The Swift user in
     - `key`: The user API Key
+    - `auth_version`: The OpenStack auth version (optional, default: '1')
+    - `os_options`: The OpenStack options as a dictonnary with keys such as
+        'region_name' (optional, default: None)
     """
 
     def __init__(self, name, config):
         super(SwiftBackend, self).__init__(name, config)
 
-        version = "3"
-        if "2.0" in config.authurl:
-            version = "2.0"
+        auth_version = getattr(config, "auth_version", "1")
+        os_options = getattr(config, "os_options", None)
         self.conn = swiftclient.Connection(
             user=config.user,
             key=config.key,
             authurl=config.authurl,
-            auth_version=version,
-            os_options={
-                "tenant_name": config.tenant_name,
-                "region_name": config.region_name,
-            },
+            auth_version=auth_version,
+            os_options=os_options,
         )
         self.conn.put_container(self.name)
 
@@ -63,8 +62,12 @@ class SwiftBackend(BaseBackend):
             self.write(filename, f.getvalue())
 
     def read(self, filename):
+        _, data = self.conn.get_object(self.name, filename)
+        return data
+
+    def read_chunks(self, filename, chunks_size=1024 * 1024):
         _, data = self.conn.get_object(
-            self.name, filename, resp_chunk_size=1024 * 1024
+            self.name, filename, resp_chunk_size=chunks_size
         )
         return data
 

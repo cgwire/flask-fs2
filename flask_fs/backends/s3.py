@@ -86,7 +86,11 @@ class S3Backend(BaseBackend):
 
     def read(self, filename):
         obj = self.bucket.Object(filename).get()
-        return obj["Body"].iter_chunks(1024 * 1024)
+        return obj["Body"].read()
+
+    def read_chunks(self, filename, chunks_size=1024 * 1024):
+        obj = self.bucket.Object(filename).get()
+        return obj["Body"].iter_chunks(chunks_size)
 
     def write(self, filename, content):
         return self.bucket.put_object(

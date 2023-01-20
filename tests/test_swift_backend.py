@@ -13,6 +13,8 @@ import pytest
 USER = "test:tester"
 KEY = "testing"
 AUTHURL = "http://127.0.0.1:8080/auth/v1.0"
+TENANT_NAME = ""
+REGION_NAME = ""
 
 
 class SwiftBackendTest(BackendTestCase):
@@ -32,6 +34,8 @@ class SwiftBackendTest(BackendTestCase):
                 "user": USER,
                 "key": KEY,
                 "authurl": AUTHURL,
+                "tenant_name": TENANT_NAME,
+                "region_name": REGION_NAME,
             }
         )
         self.backend = SwiftBackend(self.container, self.config)

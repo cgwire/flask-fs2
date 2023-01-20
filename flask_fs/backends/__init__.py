@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from flask_fs import files
 
-__all__ = [i.encode("ascii") for i in ("BaseBackend", "DEFAULT_BACKEND")]
+__all__ = ["BaseBackend", "DEFAULT_BACKEND"]
 
 
 DEFAULT_BACKEND = "local"
@@ -32,6 +32,10 @@ class BaseBackend(object):
     def read(self, filename):
         """Read a file content given its filename in the storage"""
         raise NotImplementedError("Read operation is not implemented")
+
+    def read_chunks(self, filename, chunk_size=1024 * 1024):
+        """Read a file content by chunks given its filename in the storage"""
+        raise NotImplementedError("Read chunks operation is not implemented")
 
     def write(self, filename, content):
         """Write content into a file given its filename in the storage"""

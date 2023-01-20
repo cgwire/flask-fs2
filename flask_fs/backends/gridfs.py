@@ -54,6 +54,14 @@ class GridFsBackend(BaseBackend):
         f = self.fs.get_last_version(filename)
         return f.read()
 
+    def read_chunks(self, filename, chunk_size=1024 * 1024):
+        f = self.fs.get_last_version(filename)
+        while True:
+            data = f.read(chunk_size)
+            if not data:
+                break
+            yield data
+
     def write(self, filename, content):
         kwargs = {"filename": filename}
 

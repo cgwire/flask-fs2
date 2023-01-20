@@ -83,6 +83,14 @@ class LocalBackend(BaseBackend):
         with self.open(filename, "rb") as f:
             return f.read()
 
+    def read_chunks(self, filename, chunk_size=1024 * 1024):
+        with self.open(filename, "rb") as f:
+            while True:
+                data = f.read(chunk_size)
+                if not data:
+                    break
+                yield data
+
     def write(self, filename, content):
         self.ensure_path(filename)
         with self.open(filename, "wb") as f:

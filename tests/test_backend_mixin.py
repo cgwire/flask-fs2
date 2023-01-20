@@ -95,6 +95,14 @@ class BackendTestCase(object):
 
         assert self.backend.read("file.test") == self.b(content)
 
+    def test_read_chunks(self, faker):
+        content = str(faker.sentence())
+        self.put_file("file.test", content)
+        data = b""
+        for chunk in self.backend.read_chunks("file.test"):
+            data += chunk
+        assert data == self.b(content)
+
     def test_write_text(self, faker):
         content = str(faker.sentence())
         self.backend.write("test.txt", content)
