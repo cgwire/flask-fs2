@@ -1,16 +1,6 @@
-========
-Flask-FS
-========
-
-.. image:: https://travis-ci.org/noirbizarre/flask-fs.svg?branch=master
-    :target: https://travis-ci.org/noirbizarre/flask-fs
-    :alt: Build status
-.. image:: https://coveralls.io/repos/noirbizarre/flask-fs/badge.svg?branch=master
-    :target: https://coveralls.io/r/noirbizarre/flask-fs?branch=master
-    :alt: Code coverage
-.. image:: https://readthedocs.org/projects/flask-fs/badge/?version=latest
-    :target: http://flask-fs.readthedocs.org/en/latest/
-    :alt: Documentation status
+=========
+Flask-FS2
+=========
 
 Simple and easy file storages for Flask
 
@@ -18,7 +8,7 @@ Simple and easy file storages for Flask
 Compatibility
 =============
 
-Flask-FS requires Python 2.7/3.4+ and Flask 0.10+.
+Flask-FS requires Python 3.7+ and Flask/Werkzeug 2.0.0+.
 
 Amazon S3 support requires Boto3.
 
@@ -60,7 +50,26 @@ Quick start
         app.run(debug=True)
 
 
-Documentation
-=============
+Contributions
+===========
 
-The full documentation is hosted `on Read the Docs <http://flask-fs.readthedocs.org/en/latest/>`_
+All contributions are welcome as long as they respect the `C4
+contract <https://rfc.zeromq.org/spec:42/C4>`__.
+
+Code must follow the pep8 convention.
+
+About authors
+===========
+
+Flask-FS2 is maintained by CGWire, a company based in France. We help animation 
+and VFX studios to collaborate better through efficient tooling. 
+We already work with more than 70 studios around the world.
+
+It's a fork of `this project <https://github.com/noirbizarre/flask-fs>`__.
+
+Visit `cg-wire.com <https://cg-wire.com>`__ for more information.
+
+|CGWire Logo|
+
+.. |CGWire Logo| image:: https://zou.cg-wire.com/cgwire.png
+   :target: https://cg-wire.com

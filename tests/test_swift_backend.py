@@ -10,13 +10,15 @@ from flask_fs.storage import Config
 
 import pytest
 
-USER = 'test:tester'
-KEY = 'testing'
-AUTHURL = 'http://127.0.0.1:8080/auth/v1.0'
+USER = "test:tester"
+KEY = "testing"
+AUTHURL = "http://127.0.0.1:8080/auth/v1.0"
+TENANT_NAME = ""
+REGION_NAME = ""
 
 
 class SwiftBackendTest(BackendTestCase):
-    hasher = 'md5'
+    hasher = "md5"
 
     @pytest.fixture(autouse=True)
     def setup(self):
@@ -25,13 +27,17 @@ class SwiftBackendTest(BackendTestCase):
             key=KEY,
             authurl=AUTHURL,
         )
-        self.container = 'test'
+        self.container = "test"
 
-        self.config = Config({
-            'user': USER,
-            'key': KEY,
-            'authurl': AUTHURL,
-        })
+        self.config = Config(
+            {
+                "user": USER,
+                "key": KEY,
+                "authurl": AUTHURL,
+                "tenant_name": TENANT_NAME,
+                "region_name": REGION_NAME,
+            }
+        )
         self.backend = SwiftBackend(self.container, self.config)
 
         yield
@@ -39,7 +45,7 @@ class SwiftBackendTest(BackendTestCase):
         try:
             headers, items = self.conn.get_container(self.backend.name)
             for i in items:
-                self.conn.delete_object(self.backend.name, i['name'])
+                self.conn.delete_object(self.backend.name, i["name"])
 
             self.conn.delete_container(self.backend.name)
         except swiftclient.ClientException as e:

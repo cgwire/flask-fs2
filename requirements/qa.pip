@@ -1,2 +1,2 @@
-flake8==3.5.0
-pytest-cov==2.5.1
+flake8==5.0.4
+pytest-cov==4.0.0

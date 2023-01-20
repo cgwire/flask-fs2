@@ -20,12 +20,12 @@ class MongoEngineTestCase(object):
     @pytest.fixture(autouse=True)
     def storage(self, app, tmpdir):
         app.instance_path = str(tmpdir)
-        storage = fs.Storage('test', fs.ALL)
+        storage = fs.Storage("test", fs.ALL)
         fs.init_app(app, storage)
         db.init_app(app)
         yield storage
         with app.test_request_context():
-            db_name = app.config['MONGODB_DB']
+            db_name = app.config["MONGODB_DB"]
             try:
                 db.connection.client.drop_database(db_name)
             except TypeError:
@@ -42,7 +42,7 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.validate() is None
 
         assert not tester.file
-        assert str(tester.file) == ''
+        assert str(tester.file) == ""
         assert tester.to_mongo() == {}
         assert tester.file.filename is None
 
@@ -50,7 +50,7 @@ class FileFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             file = FileField(fs=storage)
 
-        filename = 'file.test'
+        filename = "file.test"
 
         tester = Tester()
         tester.file = filename
@@ -60,8 +60,8 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file
         assert tester.file.filename == filename
         assert tester.to_mongo() == {
-            'file': {
-                'filename': filename,
+            "file": {
+                "filename": filename,
             }
         }
 
@@ -73,10 +73,10 @@ class FileFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             file = FileField(fs=storage)
 
-        filename = 'test.png'
+        filename = "test.png"
 
         tester = Tester()
-        f = open(binfile, 'rb')
+        f = open(binfile, "rb")
         tester.file.save(f, filename)
         tester.validate()
 
@@ -86,8 +86,8 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file.filename == filename
 
         assert tester.to_mongo() == {
-            'file': {
-                'filename': filename,
+            "file": {
+                "filename": filename,
             }
         }
 
@@ -103,10 +103,10 @@ class FileFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             file = FileField(fs=storage)
 
-        filename = 'test.txt'
+        filename = "test.txt"
 
         tester = Tester()
-        tester.file.save(utils.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, "this is a stest"))
         tester.validate()
 
         assert tester.file
@@ -115,8 +115,8 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file.filename == filename
 
         assert tester.to_mongo() == {
-            'file': {
-                'filename': filename,
+            "file": {
+                "filename": filename,
             }
         }
 
@@ -127,24 +127,24 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file.filename == filename
 
     def test_save_with_upload_to(self, storage, utils):
-        upload_to = 'prefix'
+        upload_to = "prefix"
 
         class Tester(db.Document):
             file = FileField(fs=storage, upload_to=upload_to)
 
-        filename = 'test.txt'
+        filename = "test.txt"
 
         tester = Tester()
-        tester.file.save(utils.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, "this is a stest"))
         tester.validate()
 
-        expected_filename = '/'.join([upload_to, filename])
+        expected_filename = "/".join([upload_to, filename])
         assert tester.file
         assert tester.file.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'file': {
-                'filename': expected_filename,
+            "file": {
+                "filename": expected_filename,
             }
         }
 
@@ -153,24 +153,24 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file.filename == expected_filename
 
     def test_save_with_callable_upload_to(self, storage, utils):
-        upload_to = 'prefix'
+        upload_to = "prefix"
 
         class Tester(db.Document):
             file = FileField(fs=storage, upload_to=lambda o: upload_to)
 
-        filename = 'test.txt'
+        filename = "test.txt"
 
         tester = Tester()
-        tester.file.save(utils.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, "this is a stest"))
         tester.validate()
 
-        expected_filename = '/'.join([upload_to, filename])
+        expected_filename = "/".join([upload_to, filename])
         assert tester.file
         assert tester.file.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'file': {
-                'filename': expected_filename,
+            "file": {
+                "filename": expected_filename,
             }
         }
 
@@ -180,21 +180,21 @@ class FileFieldTest(MongoEngineTestCase):
 
     def test_save_with_callable_basename(self, storage, utils):
         class Tester(db.Document):
-            file = FileField(fs=storage, basename=lambda o: 'prefix/filename')
+            file = FileField(fs=storage, basename=lambda o: "prefix/filename")
 
-        filename = 'test.txt'
+        filename = "test.txt"
 
         tester = Tester()
-        tester.file.save(utils.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, "this is a stest"))
         tester.validate()
 
-        expected_filename = 'prefix/filename.txt'
+        expected_filename = "prefix/filename.txt"
         assert tester.file
         assert tester.file.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'file': {
-                'filename': expected_filename,
+            "file": {
+                "filename": expected_filename,
             }
         }
 
@@ -204,21 +204,23 @@ class FileFieldTest(MongoEngineTestCase):
 
     def test_save_with_callable_basename_override(self, storage, utils):
         class Tester(db.Document):
-            file = FileField(fs=storage, basename=lambda o: 'prefix/filename')
+            file = FileField(fs=storage, basename=lambda o: "prefix/filename")
 
-        filename = 'test.txt'
-        expected_filename = 'other.txt'
+        filename = "test.txt"
+        expected_filename = "other.txt"
 
         tester = Tester()
-        tester.file.save(utils.filestorage(filename, 'this is a stest'), expected_filename)
+        tester.file.save(
+            utils.filestorage(filename, "this is a stest"), expected_filename
+        )
         tester.validate()
 
         assert tester.file
         assert tester.file.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'file': {
-                'filename': expected_filename,
+            "file": {
+                "filename": expected_filename,
             }
         }
 
@@ -230,7 +232,7 @@ class FileFieldTest(MongoEngineTestCase):
 class ImageFieldTestMixin(MongoEngineTestCase):
     @pytest.fixture
     def resource(self, utils, image):
-        return utils.filestorage('flask.{0}'.format(self.ext), image)
+        return utils.filestorage("flask.{0}".format(self.ext), image)
 
     def test_default_validate(self, storage):
         class Tester(db.Document):
@@ -240,7 +242,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.validate() is None
 
         assert not tester.image
-        assert str(tester.image) == ''
+        assert str(tester.image) == ""
         assert tester.to_mongo() == {}
         assert tester.image.filename is None
         assert tester.image.original is None
@@ -249,7 +251,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'test.{0}'.format(self.ext)
+        filename = "test.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(image, filename)
@@ -261,8 +263,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename
         assert filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
+            "image": {
+                "filename": filename,
             }
         }
 
@@ -270,7 +272,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         tester = Tester.objects.get(id=tester.id)
         assert tester.image.filename == filename
 
-        with open(storage.path(filename), 'rb') as f_stored:
+        with open(storage.path(filename), "rb") as f_stored:
             stored = Image.open(f_stored)
             original = Image.open(image)
             assert stored.size == original.size
@@ -279,7 +281,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'flask.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -291,8 +293,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename
         assert filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
+            "image": {
+                "filename": filename,
             }
         }
 
@@ -300,19 +302,19 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         tester = Tester.objects.get(id=tester.id)
         assert tester.image.filename == filename
 
-        with open(storage.path(filename), 'rb') as f_stored:
+        with open(storage.path(filename), "rb") as f_stored:
             stored = Image.open(f_stored)
             original = Image.open(image)
             assert stored.size == original.size
 
     def test_save_optimize_settings(self, app, storage, resource, image):
-        app.config['FS_IMAGES_OPTIMIZE'] = True
+        app.config["FS_IMAGES_OPTIMIZE"] = True
 
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_original = 'flask-original.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_original = "flask-original.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -324,9 +326,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename_original
         assert filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'original': filename_original,
+            "image": {
+                "filename": filename,
+                "original": filename_original,
             }
         }
 
@@ -338,8 +340,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         path_original = storage.path(filename_original)
         path_optimized = storage.path(filename)
 
-        with open(path_original, 'rb') as f_orig:
-            with open(path_optimized, 'rb') as f_optimized:
+        with open(path_original, "rb") as f_orig:
+            with open(path_optimized, "rb") as f_optimized:
                 source = Image.open(image)
                 original = Image.open(f_orig)
                 optimized = Image.open(f_optimized)
@@ -351,8 +353,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, optimize=True)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_original = 'flask-original.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_original = "flask-original.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -364,9 +366,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename_original
         assert filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'original': filename_original,
+            "image": {
+                "filename": filename,
+                "original": filename_original,
             }
         }
 
@@ -378,8 +380,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         path_original = storage.path(filename_original)
         path_optimized = storage.path(filename)
 
-        with open(path_original, 'rb') as f_orig:
-            with open(path_optimized, 'rb') as f_optimized:
+        with open(path_original, "rb") as f_orig:
+            with open(path_optimized, "rb") as f_optimized:
                 source = Image.open(image)
                 original = Image.open(f_orig)
                 optimized = Image.open(f_optimized)
@@ -393,8 +395,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, max_size=max_size)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_original = 'flask-original.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_original = "flask-original.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -406,9 +408,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename_original
         assert filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'original': filename_original,
+            "image": {
+                "filename": filename,
+                "original": filename_original,
             }
         }
 
@@ -417,8 +419,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.filename == filename
         assert tester.image.original == filename_original
 
-        with open(storage.path(filename_original), 'rb') as f_orig:
-            with open(storage.path(filename), 'rb') as f_resized:
+        with open(storage.path(filename_original), "rb") as f_orig:
+            with open(storage.path(filename), "rb") as f_resized:
                 source = Image.open(image)
                 original = Image.open(f_orig)
                 resized = Image.open(f_resized)
@@ -435,9 +437,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_150 = 'flask-150.{0}'.format(self.ext)
-        filename_32 = 'flask-32.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_150 = "flask-150.{0}".format(self.ext)
+        filename_32 = "flask-32.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -456,11 +458,11 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert filename_32 in storage
         assert filename_150 in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'thumbnails': {
-                    '32': filename_32,
-                    '150': filename_150,
+            "image": {
+                "filename": filename,
+                "thumbnails": {
+                    "32": filename_32,
+                    "150": filename_150,
                 },
             }
         }
@@ -472,9 +474,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.thumbnail(32) == filename_32
         assert tester.image.thumbnail(150) == filename_150
 
-        with open(storage.path(filename), 'rb') as f_orig:
-            with open(storage.path(filename_32), 'rb') as f_32:
-                with open(storage.path(filename_150), 'rb') as f_150:
+        with open(storage.path(filename), "rb") as f_orig:
+            with open(storage.path(filename_32), "rb") as f_32:
+                with open(storage.path(filename_150), "rb") as f_150:
                     source = Image.open(image)
                     original = Image.open(f_orig)
                     thumb_32 = Image.open(f_32)
@@ -487,9 +489,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_150 = 'flask-150.{0}'.format(self.ext)
-        filename_32 = 'flask-32.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_150 = "flask-150.{0}".format(self.ext)
+        filename_32 = "flask-32.{0}".format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -513,12 +515,12 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert filename_32 in storage
         assert filename_150 in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'bbox': (10, 10, 100, 100),
-                'thumbnails': {
-                    '32': filename_32,
-                    '150': filename_150,
+            "image": {
+                "filename": filename,
+                "bbox": (10, 10, 100, 100),
+                "thumbnails": {
+                    "32": filename_32,
+                    "150": filename_150,
                 },
             }
         }
@@ -533,9 +535,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         # self.assertSequenceEqual(tester.image.bbox, bbox)
 
         # with image as f:
-        with open(storage.path(filename), 'rb') as f_orig:
-            with open(storage.path(filename_32), 'rb') as f_32:
-                with open(storage.path(filename_150), 'rb') as f_150:
+        with open(storage.path(filename), "rb") as f_orig:
+            with open(storage.path(filename_32), "rb") as f_32:
+                with open(storage.path(filename_150), "rb") as f_150:
                     source = Image.open(image)
                     original = Image.open(f_orig)
                     thumb_32 = Image.open(f_32)
@@ -548,10 +550,10 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         sizes = [32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_32 = 'flask-32.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_32 = "flask-32.{0}".format(self.ext)
 
-        filename2 = 'flask2.{0}'.format(self.ext)
+        filename2 = "flask2.{0}".format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -559,7 +561,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
 
         tester = Tester()
         tester.image.save(resource, bbox=bbox)
-        tester.image2.save(resource, filename='flask2.{0}'.format(self.ext))
+        tester.image2.save(resource, filename="flask2.{0}".format(self.ext))
         tester.validate()
 
         assert tester.image
@@ -577,25 +579,25 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert filename_32 in storage
         assert filename2 in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
-                'bbox': (10, 10, 100, 100),
-                'thumbnails': {
-                    '32': filename_32,
+            "image": {
+                "filename": filename,
+                "bbox": (10, 10, 100, 100),
+                "thumbnails": {
+                    "32": filename_32,
                 },
             },
-            'image2': {
-                'filename': filename2,
-            }
+            "image2": {
+                "filename": filename2,
+            },
         }
 
     def test_save_and_update(self, storage, resource):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_150 = 'flask-150.{0}'.format(self.ext)
-        filename_32 = 'flask-32.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_150 = "flask-150.{0}".format(self.ext)
+        filename_32 = "flask-32.{0}".format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -604,7 +606,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
 
         tester.image.save(resource, bbox=bbox)
 
-        assert tester._changed_fields == ['image']
+        assert tester._changed_fields == ["image"]
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
@@ -618,10 +620,10 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         sizes = [150, 32]
 
         # filename = 'flask.{0}'.format(self.ext)
-        filename_150 = 'flask-150.{0}'.format(self.ext)
-        filename_32 = 'flask-32.{0}'.format(self.ext)
+        filename_150 = "flask-150.{0}".format(self.ext)
+        filename_32 = "flask-32.{0}".format(self.ext)
 
-        filename2 = 'flask2.{0}'.format(self.ext)
+        filename2 = "flask2.{0}".format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -656,7 +658,7 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, max_size=max_size)
 
-        filename = 'flask.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
 
         tester = Tester()
 
@@ -666,27 +668,29 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         tester.image.save(resource)
 
         assert tester.image.full() == storage.url(filename)
-        assert tester.image.full(external=True) == storage.url(filename, external=True)
+        assert tester.image.full(external=True) == storage.url(
+            filename, external=True
+        )
 
     def test_save_with_upload_to(self, storage, resource):
-        upload_to = 'prefix'
+        upload_to = "prefix"
 
         class Tester(db.Document):
             image = ImageField(fs=storage, upload_to=upload_to)
 
-        filename = 'flask.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
         tester.validate()
 
-        expected_filename = '/'.join([upload_to, filename])
+        expected_filename = "/".join([upload_to, filename])
         assert tester.image
         assert tester.image.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': expected_filename,
+            "image": {
+                "filename": expected_filename,
             }
         }
 
@@ -695,24 +699,24 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.filename == expected_filename
 
     def test_save_with_callable_upload_to(self, storage, resource):
-        upload_to = 'prefix'
+        upload_to = "prefix"
 
         class Tester(db.Document):
             image = ImageField(fs=storage, upload_to=lambda o: upload_to)
 
-        filename = 'flask.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
         tester.validate()
 
-        expected_filename = '/'.join([upload_to, filename])
+        expected_filename = "/".join([upload_to, filename])
         assert tester.image
         assert tester.image.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': expected_filename,
+            "image": {
+                "filename": expected_filename,
             }
         }
 
@@ -722,19 +726,21 @@ class ImageFieldTestMixin(MongoEngineTestCase):
 
     def test_save_with_callable_basename(self, storage, resource):
         class Tester(db.Document):
-            image = ImageField(fs=storage, basename=lambda o: 'prefix/filename')
+            image = ImageField(
+                fs=storage, basename=lambda o: "prefix/filename"
+            )
 
         tester = Tester()
         tester.image.save(resource)
         tester.validate()
 
-        expected_filename = 'prefix/filename.{0}'.format(self.ext)
+        expected_filename = "prefix/filename.{0}".format(self.ext)
         assert tester.image
         assert tester.image.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': expected_filename,
+            "image": {
+                "filename": expected_filename,
             }
         }
 
@@ -744,9 +750,11 @@ class ImageFieldTestMixin(MongoEngineTestCase):
 
     def test_save_with_callable_basename_override(self, storage, resource):
         class Tester(db.Document):
-            image = ImageField(fs=storage, basename=lambda o: 'prefix/filename')
+            image = ImageField(
+                fs=storage, basename=lambda o: "prefix/filename"
+            )
 
-        expected_filename = 'other.{0}'.format(self.ext)
+        expected_filename = "other.{0}".format(self.ext)
 
         tester = Tester()
         tester.image.save(resource, expected_filename)
@@ -756,8 +764,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.filename == expected_filename
         assert expected_filename in storage
         assert tester.to_mongo() == {
-            'image': {
-                'filename': expected_filename,
+            "image": {
+                "filename": expected_filename,
             }
         }
 
@@ -769,16 +777,16 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, optimize=True)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_original = 'flask-original.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_original = "flask-original.{0}".format(self.ext)
 
         storage.write(filename, image)
 
         tester = Tester()
         tester.image.filename = filename
         assert tester.to_mongo() == {
-            'image': {
-                'filename': filename,
+            "image": {
+                "filename": filename,
             }
         }
 
@@ -791,18 +799,18 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename_original
         assert filename in storage
         assert tester.to_mongo() == {
-            '_id': tester.pk,
-            'image': {
-                'filename': filename,
-                'original': filename_original,
-            }
+            "_id": tester.pk,
+            "image": {
+                "filename": filename,
+                "original": filename_original,
+            },
         }
 
         path_original = storage.path(filename_original)
         path_optimized = storage.path(filename)
 
-        with open(path_original, 'rb') as f_orig:
-            with open(path_optimized, 'rb') as f_optimized:
+        with open(path_original, "rb") as f_orig:
+            with open(path_optimized, "rb") as f_optimized:
                 source = Image.open(image)
                 original = Image.open(f_orig)
                 optimized = Image.open(f_optimized)
@@ -814,8 +822,8 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, max_size=100, optimize=True)
 
-        filename = 'flask.{0}'.format(self.ext)
-        filename_original = 'flask-original.{0}'.format(self.ext)
+        filename = "flask.{0}".format(self.ext)
+        filename_original = "flask-original.{0}".format(self.ext)
 
         storage.write(filename_original, image)
 
@@ -823,9 +831,9 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         tester.image.original = filename_original
         tester.image.filename = filename
         assert tester.to_mongo() == {
-            'image': {
-                'original': filename_original,
-                'filename': filename,
+            "image": {
+                "original": filename_original,
+                "filename": filename,
             }
         }
 
@@ -838,18 +846,18 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image.original == filename_original
         assert filename in storage
         assert tester.to_mongo() == {
-            '_id': tester.pk,
-            'image': {
-                'filename': filename,
-                'original': filename_original,
-            }
+            "_id": tester.pk,
+            "image": {
+                "filename": filename,
+                "original": filename_original,
+            },
         }
 
         path_original = storage.path(filename_original)
         path_optimized = storage.path(filename)
 
-        with open(path_original, 'rb') as f_orig:
-            with open(path_optimized, 'rb') as f_optimized:
+        with open(path_original, "rb") as f_orig:
+            with open(path_optimized, "rb") as f_optimized:
                 source = Image.open(image)
                 original = Image.open(f_orig)
                 optimized = Image.open(f_optimized)
@@ -859,18 +867,18 @@ class ImageFieldTestMixin(MongoEngineTestCase):
 
 
 class ImageFieldPngTest(ImageFieldTestMixin):
-    ext = 'png'
+    ext = "png"
 
     @pytest.fixture
     def image(self, pngfile):
-        with open(pngfile, 'rb') as f:
+        with open(pngfile, "rb") as f:
             yield f
 
 
 class ImageFieldJpgTest(ImageFieldTestMixin):
-    ext = 'jpg'
+    ext = "jpg"
 
     @pytest.fixture
     def image(self, jpgfile):
-        with open(jpgfile, 'rb') as f:
+        with open(jpgfile, "rb") as f:
             yield f
