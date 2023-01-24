@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Flask-FS documentation build configuration file, created by
 # sphinx-quickstart on Mon Oct  6 12:44:29 2014.
 #

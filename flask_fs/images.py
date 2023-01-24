@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 This module handle image operations (thumbnailing, resizing...)
 """
-from __future__ import unicode_literals, division
-
 import logging
 
 from PIL import Image
