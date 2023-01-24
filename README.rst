@@ -51,7 +51,7 @@ Quick start
 
 
 Contributions
-===========
+=============
 
 All contributions are welcome as long as they respect the `C4
 contract <https://rfc.zeromq.org/spec:42/C4>`__.
@@ -59,7 +59,7 @@ contract <https://rfc.zeromq.org/spec:42/C4>`__.
 Code must follow the pep8 convention.
 
 About authors
-===========
+=============
 
 Flask-FS2 is maintained by CGWire, a company based in France. We help animation 
 and VFX studios to collaborate better through efficient tooling. 
