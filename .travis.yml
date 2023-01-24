@@ -2,8 +2,6 @@ language: python
 sudo: required
 dist: jammy
 os: linux
-env:
-  - SETUPTOOLS_USE_DISTUTILS=stdlib
 services:
   - docker
 python:
@@ -12,6 +10,7 @@ python:
   - "pypy3"
 
 install:
+  - pip install --upgrade pip
   - pip install "python-dateutil==2.8.2"
   - pip install -e .[ci]
   - pip install coveralls
