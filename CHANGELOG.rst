@@ -4,7 +4,14 @@ Changelog
 Current
 -------
 
-- Nothing yet
+0.7.4 (2022-01-24)
+------------------
+
+- CGWire will maintain this fork
+- Flask-FS2 requires Python 3.7+ and Flask/Werkzeug 2.0.0+
+- Remove all code related to Python 2
+- Added ``read_chunks()`` operations
+- Add region configuration for Swift and S3
 
 0.6.1 (2018-04-19)
 ------------------
