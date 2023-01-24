@@ -2,6 +2,8 @@ language: python
 sudo: required
 dist: jammy
 os: linux
+env:
+  - SETUPTOOLS_USE_DISTUTILS=stdlib
 services:
   - docker
 python:
