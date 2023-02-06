@@ -94,7 +94,7 @@ class LocalBackend(BaseBackend):
             return f.write(self.as_binary(content))
 
     def delete(self, filename):
-        dest = os.path.join(self.root, filename)
+        dest = self.path(filename)
         if os.path.isdir(dest):
             shutil.rmtree(dest, ignore_errors=True)
         else:
