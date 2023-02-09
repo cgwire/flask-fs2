@@ -136,7 +136,8 @@ class ImageReference(FileReference):
         if self.optimize is not None:
             should_optimize = self.optimize
         else:
-            should_optimize = current_app.config["FS_IMAGES_OPTIMIZE"]
+            with current_app.app_context():
+                should_optimize = current_app.config["FS_IMAGES_OPTIMIZE"]
 
         def name(size=None):
             if size:

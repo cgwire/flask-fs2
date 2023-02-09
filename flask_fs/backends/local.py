@@ -49,8 +49,9 @@ class LocalBackend(BaseBackend):
 
     @cached_property
     def default_root(self):
-        default_root = current_app.config.get("FS_ROOT")
-        return current_app.config.get("FS_LOCAL_ROOT", default_root)
+        with current_app.app_context():
+            default_root = current_app.config.get("FS_ROOT")
+            return current_app.config.get("FS_LOCAL_ROOT", default_root)
 
     def exists(self, filename):
         dest = self.path(filename)

@@ -17,7 +17,8 @@ except ImportError as e:
 
 def by_name(name):
     """Get a storage by its name"""
-    return current_app.extensions["fs"].get(name)
+    with current_app.app_context():
+        return current_app.extensions["fs"].get(name)
 
 
 def init_app(app, *storages):

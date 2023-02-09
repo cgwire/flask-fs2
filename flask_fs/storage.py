@@ -153,10 +153,11 @@ class Storage(object):
         config_value = self.config.get("url")
         if config_value:
             return self._clean_url(config_value)
-        default_url = current_app.config.get("FS_URL")
-        default_url = current_app.config.get(
-            "{0}URL".format(self.backend_prefix), default_url
-        )
+        with current_app.app_context():
+            default_url = current_app.config.get("FS_URL")
+            default_url = current_app.config.get(
+                "{0}URL".format(self.backend_prefix), default_url
+            )
         if default_url:
             url = urljoin(default_url, self.name)
             return self._clean_url(url)
@@ -174,7 +175,8 @@ class Storage(object):
     @property
     def has_url(self):
         """Whether this storage has a public URL or not"""
-        return bool(self.config.get("url") or current_app.config.get("FS_URL"))
+        with current_app.app_context():
+            return bool(self.config.get("url") or current_app.config.get("FS_URL"))
 
     def url(self, filename, external=False):
         """
