@@ -29,13 +29,15 @@ class SwiftBackend(BaseBackend):
         super(SwiftBackend, self).__init__(name, config)
 
         auth_version = getattr(config, "auth_version", "1")
-        os_options = getattr(config, "os_options", None)
         self.conn = swiftclient.Connection(
             user=config.user,
             key=config.key,
             authurl=config.authurl,
             auth_version=auth_version,
-            os_options=os_options,
+            os_options={
+                "tenant_name": getattr(config, "tenant_name", None),
+                "region_name": getattr(config, "region_name", None),
+            },
         )
         self.conn.put_container(self.name)
 
