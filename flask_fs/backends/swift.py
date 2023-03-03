@@ -20,7 +20,7 @@ class SwiftBackend(BaseBackend):
     - `authurl`: The Swift Auth URL
     - `user`: The Swift user in
     - `key`: The user API Key
-    - `auth_version`: The OpenStack auth version (optional, default: '1')
+    - `auth_version`: The OpenStack auth version (optional, default: '3')
     - `os_options`: The OpenStack options as a dictonnary with keys such as
         'region_name' (optional, default: None)
     """
@@ -28,7 +28,7 @@ class SwiftBackend(BaseBackend):
     def __init__(self, name, config):
         super(SwiftBackend, self).__init__(name, config)
 
-        auth_version = getattr(config, "auth_version", "1")
+        auth_version = getattr(config, "auth_version", "3")
         self.conn = swiftclient.Connection(
             user=config.user,
             key=config.key,
