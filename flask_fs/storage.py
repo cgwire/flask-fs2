@@ -176,7 +176,9 @@ class Storage(object):
     def has_url(self):
         """Whether this storage has a public URL or not"""
         with current_app.app_context():
-            return bool(self.config.get("url") or current_app.config.get("FS_URL"))
+            return bool(
+                self.config.get("url") or current_app.config.get("FS_URL")
+            )
 
     def url(self, filename, external=False):
         """
@@ -258,6 +260,17 @@ class Storage(object):
         if not self.backend.exists(filename):
             raise FileNotFound(filename)
         return self.backend.read(filename)
+
+    def read_chunks(self, filename, chunk_size=1024 * 1024):
+        """
+        Read a file content by chunks.
+
+        :param string filename: The storage root-relative filename
+        :raises FileNotFound: If the file does not exists
+        """
+        if not self.backend.exists(filename):
+            raise FileNotFound(filename)
+        return self.backend.read_chunks(filename, chunk_size)
 
     def open(self, filename, mode="r", **kwargs):
         """

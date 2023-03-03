@@ -1,7 +1,7 @@
 from os.path import join
 
 from .__about__ import __description__  # noqa: Facade pattern
-from .__version__ import __version__ # noqa: Facade pattern
+from .__version__ import __version__  # noqa: Facade pattern
 
 try:
     from flask import current_app
