@@ -96,6 +96,18 @@ def test_read(app, mock_backend):
     assert storage.read("file.test") == "content"
 
 
+def test_read_chunks(app, mock_backend):
+    storage = fs.Storage("test")
+    app.configure(storage)
+
+    backend = mock_backend.return_value
+    backend.read_chunks.return_value = ["c", "o", "n", "t", "e", "n", "t"]
+    data = ""
+    for chunk in storage.read_chunks("file.test"):
+        data += chunk
+    assert data == "content"
+
+
 def test_read_not_found(app, mock_backend):
     storage = fs.Storage("test")
     app.configure(storage)
