@@ -39,7 +39,10 @@ class SwiftBackend(BaseBackend):
                 "region_name": getattr(config, "region_name", None),
             },
         )
-        self.conn.put_container(self.name)
+        try:
+            self.conn.head_container(self.name)
+        except swiftclient.exceptions.ClientException:
+            self.conn.put_container(self.name)
 
     def exists(self, filename):
         try:
