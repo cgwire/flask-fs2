@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 from werkzeug.utils import secure_filename, cached_property
 from werkzeug.datastructures import FileStorage
 
+from .crypto import AES256FileEncryptor
 from .errors import (
     UnauthorizedFileType,
     FileExists,
@@ -115,6 +116,10 @@ class Storage(object):
             backend_key, app.config["FS_BACKEND"]
         )
         self.backend_prefix = BACKEND_PREFIX.format(self.backend_name.upper())
+        if app.config["FS_AES256_ENCRYPTED"]:
+            self.encryptor = AES256FileEncryptor(app.config["FS_AES256_KEY"])
+        else:
+            self.encryptor = None
         backend_excluded_keys = [
             "".join((self.backend_prefix, k)) for k in BACKEND_EXCLUDED_CONFIG
         ]
@@ -259,7 +264,13 @@ class Storage(object):
         """
         if not self.backend.exists(filename):
             raise FileNotFound(filename)
-        return self.backend.read(filename)
+
+        readed_content = self.backend.read(filename)
+
+        if self.encryptor is not None:
+            return self.encryptor.decrypt_entire_file(readed_content)
+        else:
+            return readed_content
 
     def read_chunks(self, filename, chunk_size=1024 * 1024):
         """
@@ -270,7 +281,12 @@ class Storage(object):
         """
         if not self.backend.exists(filename):
             raise FileNotFound(filename)
-        return self.backend.read_chunks(filename, chunk_size)
+
+        generator = self.backend.read_chunks(filename, chunk_size)
+        if self.encryptor is not None:
+            return self.encryptor.decrypt_file_from_generator(generator)
+        else:
+            return generator
 
     def open(self, filename, mode="r", **kwargs):
         """
@@ -299,7 +315,13 @@ class Storage(object):
             and self.backend.exists(filename)
         ):
             raise FileExists()
-        return self.backend.write(filename, content)
+
+        if self.encryptor is not None:
+            return self.backend.write(
+                filename, self.encryptor.encrypt_content(content)
+            )
+        else:
+            return self.backend.write(filename, content)
 
     def delete(self, filename):
         """
@@ -353,6 +375,8 @@ class Storage(object):
             raise FileExists(filename)
 
         self.backend.save(file_or_wfs, filename)
+
+        # encryptor
 
         return filename
 

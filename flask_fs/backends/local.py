@@ -1,6 +1,5 @@
 import errno
 import hashlib
-import io
 import logging
 import os
 import shutil
@@ -24,10 +23,7 @@ CHUNK_SIZE = 2**16
 def sha1(file):
     hasher = hashlib.sha1()
     blk_size_to_read = hasher.block_size * CHUNK_SIZE
-    while True:
-        read_data = file.read(blk_size_to_read)
-        if not read_data:
-            break
+    while read_data := file.read(blk_size_to_read):
         hasher.update(read_data)
     return hasher.hexdigest()
 
@@ -72,10 +68,10 @@ class LocalBackend(BaseBackend):
         dest = self.path(filename)
         if "w" in mode:
             self.ensure_path(filename)
-        if "b" in mode:
-            return open(dest, mode)
-        else:
-            return io.open(dest, mode, encoding=encoding)
+        kwargs = {}
+        if "b" not in mode:
+            kwargs["encoding"] = encoding
+        return open(dest, mode,  **kwargs)
 
     def read(self, filename):
         with self.open(filename, "rb") as f:
@@ -83,16 +79,16 @@ class LocalBackend(BaseBackend):
 
     def read_chunks(self, filename, chunk_size=1024 * 1024):
         with self.open(filename, "rb") as f:
-            while True:
-                data = f.read(chunk_size)
-                if not data:
-                    break
+            while data := f.read(chunk_size):
                 yield data
 
     def write(self, filename, content):
         self.ensure_path(filename)
         with self.open(filename, "wb") as f:
-            return f.write(self.as_binary(content))
+            if hasattr(content, "read"):
+                return f.write(content.read())
+            else:
+                return f.write(self.as_binary(content))
 
     def delete(self, filename):
         dest = self.path(filename)

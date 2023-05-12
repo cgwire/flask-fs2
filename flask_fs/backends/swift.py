@@ -74,7 +74,9 @@ class SwiftBackend(BaseBackend):
         return data
 
     def write(self, filename, content):
-        self.conn.put_object(self.name, filename, contents=content)
+        self.conn.put_object(
+            self.name, filename, contents=self.as_binary(content)
+        )
 
     def delete(self, filename):
         if self.exists(filename):
