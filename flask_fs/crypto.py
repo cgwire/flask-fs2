@@ -191,32 +191,3 @@ class AES256FileEncryptor:
         self, file_data: bytes, ttl: typing.Optional[int] = None
     ):
         return next(self.decrypt_file_from_generator(iter([file_data]), ttl))
-
-    def read_chunks(self, filename, chunk_size=1024 * 1024):
-        with open(filename, "rb") as f:
-            while data := f.read(chunk_size):
-                yield data
-
-
-if __name__ == "__main__":
-    key = AES256FileEncryptor.generate_key()
-    ff = AES256FileEncryptor(key)
-    ff.encrypt_file(
-        "/home/evan/Downloads/Big_Buck_Bunny_360_10s_1MB.mp4",
-        "/home/evan/Downloads/test.encrypted",
-    )
-    ff.decrypt_file(
-        "/home/evan/Downloads/test.encrypted",
-        "/home/evan/Downloads/test.mp4",
-    )
-
-    gen = ff.decrypt_file_from_generator(
-        ff.read_chunks("/home/evan/Downloads/test.encrypted")
-    )
-    with open("/home/evan/Downloads/test_gen.mp4", "wb") as f:
-        for chunk in gen:
-            f.write(chunk)
-
-    with open("/home/evan/Downloads/test.encrypted", "rb") as f:
-        with open("/home/evan/Downloads/test_entire.mp4", "wb") as f_in:
-            f_in.write(ff.decrypt_entire_file(f.read()))
