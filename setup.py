@@ -75,6 +75,7 @@ setup(
         ]
     },
     license="MIT",
+    license_files="LICENSE",
     use_2to3=False,
     zip_safe=False,
     keywords="",
