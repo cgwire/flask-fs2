@@ -93,9 +93,7 @@ class BaseBackend(object):
 
     def as_binary(self, content, encoding="utf8"):
         """Perform content encoding for binary write"""
-        if hasattr(content, "read"):
-            return content.read()
-        elif isinstance(content, str):
+        if isinstance(content, str):
             return content.encode(encoding)
         else:
             return content
