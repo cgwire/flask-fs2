@@ -116,7 +116,7 @@ class Storage(object):
             backend_key, app.config["FS_BACKEND"]
         )
         self.backend_prefix = BACKEND_PREFIX.format(self.backend_name.upper())
-        if app.config["FS_AES256_ENCRYPTED"]:
+        if app.config.get("FS_AES256_ENCRYPTED", False):
             self.encryptor = AES256FileEncryptor(app.config["FS_AES256_KEY"])
         else:
             self.encryptor = None
