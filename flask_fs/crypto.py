@@ -159,7 +159,7 @@ class AES256FileEncryptor:
         ).decryptor()
         unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
 
-        while chunk:
+        while chunk is not None:
             next_chunk = next(file_generator, None)
             if next_chunk is None:
                 hmac = chunk[-32:]
@@ -167,14 +167,16 @@ class AES256FileEncryptor:
 
             h.update(chunk)
             try:
-                yield unpadder.update(decryptor.update(chunk))
+                decrypted_data = unpadder.update(decryptor.update(chunk))
+                if decrypted_data:
+                    yield decrypted_data
             except ValueError:
                 raise InvalidToken
 
             chunk = next_chunk
 
         try:
-            last_chunk = (
+            decrypted_data = (
                 unpadder.update(decryptor.finalize()) + unpadder.finalize()
             )
         except ValueError:
@@ -185,9 +187,11 @@ class AES256FileEncryptor:
         except InvalidSignature:
             raise InvalidToken
 
-        yield last_chunk
+        yield decrypted_data
 
     def decrypt_entire_file(
         self, file_data: bytes, ttl: typing.Optional[int] = None
     ):
-        return next(self.decrypt_file_from_generator(iter([file_data]), ttl))
+        return b"".join(
+            self.decrypt_file_from_generator(iter([file_data]), ttl)
+        )
