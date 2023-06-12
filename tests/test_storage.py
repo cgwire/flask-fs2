@@ -96,6 +96,22 @@ def test_read(app, mock_backend):
     assert storage.read("file.test") == "content"
 
 
+def test_read_encrypted(app_encrypted, mock_encrypted_backend):
+    storage = fs.Storage("test")
+    app_encrypted.configure(storage)
+
+    backend = mock_encrypted_backend.return_value
+    backend.read.return_value = (
+        b"\x80\x00\x00\x00\x00d}\xe9O\xa0x\x19\xd4\xbf\xc8\xec\x86\x05\x80\x8e"
+        b"\\\xd2\x0e\xa5-\x1f\xf3\xb9\xf5\xa7Nv\\\xca\x9e\xef\xf2\x03\x0eQ\xf8"
+        b"\t>\x99\xf0\r\xba\x12\xc1\xd3x\xcd\xd8\xfe\x81b*"
+        b" u0\xbd;\x05+\x8c\xb3\x01\x97\xfc\x82\x8a\xd5\xeb\xad1\xe7Z\xc8n"
+        b" \xe5\xe3\x1f\xfd\xbb\x1b\xd3\xa4\xd3"
+    )
+
+    assert storage.read("file.test") == b"It's an encrypted file."
+
+
 def test_read_chunks(app, mock_backend):
     storage = fs.Storage("test")
     app.configure(storage)
@@ -106,6 +122,30 @@ def test_read_chunks(app, mock_backend):
     for chunk in storage.read_chunks("file.test"):
         data += chunk
     assert data == "content"
+
+
+def test_read_chunks_encrypted(app_encrypted, mock_encrypted_backend):
+    storage = fs.Storage("test")
+    app_encrypted.configure(storage)
+
+    backend = mock_encrypted_backend.return_value
+    backend.read_chunks.return_value = iter(
+        [
+            (
+                b"\x80\x00\x00\x00\x00d}\xe9O\xa0x\x19\xd4\xbf\xc8\xec\x86\x05"
+                b"\x80\x8e\\\xd2\x0e\xa5-\x1f\xf3\xb9\xf5\xa7Nv\\\xca\x9e"
+            ),
+            (
+                b"\xef\xf2\x03\x0eQ\xf8\t>\x99\xf0\r\xba\x12\xc1\xd3x\xcd\xd8\xfe\x81b*"
+                b" u0\xbd;\x05+\x8c\xb3\x01\x97\xfc\x82\x8a\xd5\xeb\xad1\xe7Z\xc8n"
+                b" \xe5\xe3\x1f\xfd\xbb\x1b\xd3\xa4\xd3"
+            ),
+        ]
+    )
+    data = b""
+    for chunk in storage.read_chunks("file.test"):
+        data += chunk
+    assert data == b"It's an encrypted file."
 
 
 def test_read_not_found(app, mock_backend):
@@ -129,6 +169,23 @@ def test_write(app, mock_backend):
     storage.write("file.test", "content")
     backend.exists.assert_called_with("file.test")
     backend.write.assert_called_with("file.test", "content")
+
+
+def test_write_encrypted(app_encrypted, mock_encrypted_backend):
+    storage = fs.Storage("test")
+    app_encrypted.configure(storage)
+
+    backend = mock_encrypted_backend.return_value
+    backend.exists.return_value = False
+
+    storage.write("file.test", b"It's an encrypted file.")
+    backend.exists.assert_called_with("file.test")
+    args = backend.write.call_args.args
+    assert args[0] == "file.test"
+    assert (
+        storage.encryptor.decrypt_entire_file(args[1])
+        == b"It's an encrypted file."
+    )
 
 
 def test_write_file_exists(app, mock_backend):

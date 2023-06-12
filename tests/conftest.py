@@ -17,6 +17,15 @@ class TestConfig:
     MONGODB_PORT = 27017
 
 
+class TestConfigEncrypted:
+    TESTING = True
+    MONGODB_DB = "flask-fs-test"
+    MONGODB_HOST = "localhost"
+    MONGODB_PORT = 27017
+    FS_AES256_ENCRYPTED = True
+    FS_AES256_KEY = "jHEyo0GjTZDCUEnCkMcaF-LIxmnOix8b3JH633I7dls="
+
+
 class TestFlask(Flask):
     def configure(self, *storages, **configs):
         import flask_fs as fs
@@ -31,6 +40,13 @@ def app():
     app = TestFlask("flaskfs-tests")
     app.config.from_object(TestConfig)
     yield app
+
+
+@pytest.fixture
+def app_encrypted():
+    app_encrypted = TestFlask("flaskfs-tests")
+    app_encrypted.config.from_object(TestConfigEncrypted)
+    yield app_encrypted
 
 
 @pytest.fixture
@@ -71,5 +87,12 @@ def utils(faker):
 @pytest.fixture
 def mock_backend(app, mocker):
     app.config["FS_BACKEND"] = "mock"
+    mock = mocker.patch("flask_fs.backends.mock.MockBackend")
+    yield mock
+
+
+@pytest.fixture
+def mock_encrypted_backend(app_encrypted, mocker):
+    app_encrypted.config["FS_BACKEND"] = "mock"
     mock = mocker.patch("flask_fs.backends.mock.MockBackend")
     yield mock

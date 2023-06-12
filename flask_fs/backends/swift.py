@@ -55,8 +55,10 @@ class SwiftBackend(BaseBackend):
     def open(self, filename, mode="r", encoding="utf8"):
         if "r" in mode:
             obj = self.read(filename)
-            yield io.BytesIO(obj) if "b" in mode else io.StringIO(
-                obj.decode(encoding)
+            yield (
+                io.BytesIO(obj)
+                if "b" in mode
+                else io.StringIO(obj.decode(encoding))
             )
         else:  # mode == 'w'
             f = io.BytesIO() if "b" in mode else io.StringIO()

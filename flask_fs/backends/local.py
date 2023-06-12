@@ -71,7 +71,7 @@ class LocalBackend(BaseBackend):
         kwargs = {}
         if "b" not in mode:
             kwargs["encoding"] = encoding
-        return open(dest, mode,  **kwargs)
+        return open(dest, mode, **kwargs)
 
     def read(self, filename):
         with self.open(filename, "rb") as f:
