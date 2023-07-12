@@ -9,7 +9,7 @@ import pytest
 
 USER = "test:tester"
 KEY = "testing"
-AUTHURL = "http://127.0.0.1:8081/auth/v1.0"
+AUTHURL = "http://127.0.0.1:8085/auth/v1.0"
 TENANT_NAME = ""
 REGION_NAME = ""
 

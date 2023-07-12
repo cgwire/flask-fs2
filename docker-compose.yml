@@ -18,4 +18,4 @@ services:
   swift:
     image: morrisjobke/docker-swift-onlyone
     ports:
-      - "8081:8081"
+      - "8085:8080"
