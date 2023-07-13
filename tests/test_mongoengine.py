@@ -6,6 +6,7 @@ from PIL import Image
 import flask_fs as fs
 from flask_fs.mongo import FileField, ImageField
 from flask_mongoengine import MongoEngine
+from pymongo import MongoClient
 
 import pytest
 
@@ -23,10 +24,11 @@ class MongoEngineTestCase(object):
         yield storage
         with app.test_request_context():
             db_name = app.config["MONGODB_DB"]
-            try:
-                db.connection.client.drop_database(db_name)
-            except TypeError:
-                db.connection.drop_database(db_name)
+            client = MongoClient(
+                host=app.config["MONGODB_HOST"],
+                port=app.config["MONGODB_PORT"],
+            )
+            client.drop_database(db_name)
 
 
 class FileFieldTest(MongoEngineTestCase):

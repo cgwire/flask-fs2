@@ -14,7 +14,7 @@ def pip(filename):
     requirements = []
     for line in open(join(ROOT, "requirements", filename)):
         line = line.strip()
-        if not line or "://" in line:
+        if not line:
             continue
         match = RE_REQUIREMENT.match(line)
         if match:
