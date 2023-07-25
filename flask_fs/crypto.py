@@ -4,6 +4,7 @@ import typing
 import base64
 import binascii
 import io
+import tempfile
 
 from cryptography import utils
 from cryptography.fernet import InvalidToken, _MAX_CLOCK_SKEW
@@ -39,15 +40,12 @@ class AES256FileEncryptor:
 
     def encrypt_content(
         self,
-        content: typing.Union[bytes, io.TextIOBase],
+        content: bytes,
     ) -> bytes:
-        if hasattr(content, "read"):
-            content = content.read()
-
         utils._check_bytes("data", content)
 
-        iv = os.urandom(16)
         current_time = int(time.time())
+        iv = os.urandom(16)
         padder = padding.PKCS7(algorithms.AES.block_size).padder()
         padded_data = padder.update(content) + padder.finalize()
         encryptor = Cipher(
@@ -70,10 +68,25 @@ class AES256FileEncryptor:
 
     def encrypt_file(
         self,
-        src_file_path: typing.Union[Path, str],
-        dest_file_path: typing.Union[Path, str],
+        src_content: typing.Union[Path, str, io.TextIOBase],
+        dest_file_path: typing.Union[Path, str] = None,
         chunk_size: int = 1024 * algorithms.AES.block_size,
     ) -> typing.Union[Path, str]:
+        if hasattr(src_content, "read"):
+            src_stream = src_content
+        elif os.path.isfile(src_content):
+            src_stream = open(src_content, "rb")
+        else:
+            raise TypeError(
+                "src_content must be a file stream or a pathlike object."
+            )
+
+        if dest_file_path is not None:
+            dest_stream = open(dest_file_path, "wb")
+        else:
+            dest_stream = tempfile.NamedTemporaryFile(delete=False)
+            dest_file_path = dest_stream.name
+
         current_time = int(time.time())
         iv = os.urandom(16)
         padder = padding.PKCS7(algorithms.AES.block_size).padder()
@@ -82,9 +95,7 @@ class AES256FileEncryptor:
         ).encryptor()
         h = HMAC(self._signing_key, hashes.SHA256())
 
-        with open(src_file_path, "rb") as src_file, open(
-            dest_file_path, "wb"
-        ) as dest_file:
+        with src_stream as src_file, dest_stream as dest_file:
             basic_parts = (
                 b"\x80"
                 + int(current_time).to_bytes(length=8, byteorder="big")
