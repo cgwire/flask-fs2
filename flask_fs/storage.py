@@ -317,9 +317,20 @@ class Storage(object):
             raise FileExists()
 
         if self.encryptor is not None:
-            return self.backend.write(
-                filename, self.encryptor.encrypt_content(content)
-            )
+            if hasattr(content, "read") or os.path.isfile(content):
+                encrypted_content_path = self.encryptor.encrypt_file(content)
+                try:
+                    read_stream = open(encrypted_content_path, "rb")
+                    return self.backend.write(
+                        filename, read_stream
+                    )
+                finally:
+                    read_stream.close()
+                    os.remove(encrypted_content_path)
+            else:
+                return self.backend.write(
+                    filename, self.encryptor.encrypt_content(content)
+                )
         else:
             return self.backend.write(filename, content)
 
