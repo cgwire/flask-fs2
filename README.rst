@@ -2,7 +2,9 @@
 Flask-FS2
 =========
 
-Simple and easy file storages for Flask
+Simple and easy file storages for Flask.
+
+|CI badge|
 
 
 Compatibility
@@ -71,5 +73,7 @@ Visit `cg-wire.com <https://cg-wire.com>`__ for more information.
 
 |CGWire Logo|
 
+.. |CI badge| image:: https://github.com/cgwire/flask-fs2/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/cgwire/flask-fs2/actions/workflows/ci.yml
 .. |CGWire Logo| image:: https://zou.cg-wire.com/cgwire.png
    :target: https://cg-wire.com
