@@ -1,7 +1,7 @@
 -r s3.pip
 -r gridfs.pip
 -r swift.pip
-pytest==7.4.0
+pytest==7.4.2
 pytest-faker==2.0.0
 pytest-flask==1.2.0
 pytest-sugar==0.9.7
