@@ -1,0 +1,43 @@
+---
+name: Gazu CI
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  ci:
+    name: Test with different versions of Python 🐍
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        version: [3.8, 3.11]
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.version }}
+      - name: Upgrade pip 📦
+        run: >-
+          python -m pip install --upgrade pip setuptools
+      - name: Install packages 📦
+        run: >-
+          python -m pip install .[ci]
+      - name: Install flask-mongoengine
+        run: >-
+          python -m pip install "flask-mongoengine @ git+https://github.com/idoshr/flask-mongoengine.git@json_encoder"
+      - name: Launch dockers 🐳
+        run: >-
+          docker-compose up -d
+      - name: Run tests 🧪
+        run: >-
+          inv cover qa
+      - name: Show coverage report 📊
+        run: >-
+          coveralls --rcfile=coverage.rc
