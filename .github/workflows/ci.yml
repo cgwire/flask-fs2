@@ -39,5 +39,6 @@ jobs:
         run: >-
           inv cover qa
       - name: Show coverage report 📊
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
           coveralls --rcfile=coverage.rc
