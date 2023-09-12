@@ -1,3 +1,4 @@
 invoke==2.2.0
+coveralls
 -r test.pip
 -r qa.pip
