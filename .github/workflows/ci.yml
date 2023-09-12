@@ -1,5 +1,5 @@
 ---
-name: Gazu CI
+name: Flask-FS2 CI
 
 on:
   pull_request:
