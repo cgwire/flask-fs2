@@ -30,9 +30,11 @@ jobs:
       - name: Install packages 📦
         run: >-
           python -m pip install .[ci]
-      - name: Install flask-mongoengine
+      - name: Install flask-mongoengine and pytest-flask from git 📦
         run: >-
-          python -m pip install "flask-mongoengine @ git+https://github.com/idoshr/flask-mongoengine.git@json_encoder"
+          python -m pip install
+          "flask-mongoengine @ git+https://github.com/idoshr/flask-mongoengine.git@json_encoder"
+          "pytest-flask @git+https://github.com/threeal/pytest-flask.git@remove-request-ctx"
       - name: Launch dockers 🐳
         run: >-
           docker-compose up -d

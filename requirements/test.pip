@@ -3,7 +3,6 @@
 -r swift.pip
 pytest==7.4.2
 pytest-faker==2.0.0
-pytest-flask==1.2.0
 pytest-sugar==0.9.7
 pytest-mock==3.11.1
 pillow==10.0.1
