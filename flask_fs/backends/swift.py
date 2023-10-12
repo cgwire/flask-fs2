@@ -84,7 +84,7 @@ class SwiftBackend(BaseBackend):
         if self.exists(filename):
             self.conn.delete_object(self.name, filename)
         else:
-            headers, items = self.conn.get_container(self.name, path=filename)
+            _, items = self.conn.get_container(self.name, path=filename)
             for i in items:
                 self.conn.delete_object(self.name, i["name"])
 
@@ -93,7 +93,7 @@ class SwiftBackend(BaseBackend):
         self.conn.copy_object(self.name, filename, destination=dest)
 
     def list_files(self):
-        headers, items = self.conn.get_container(self.name)
+        _, items = self.conn.get_container(self.name)
         for i in items:
             yield i["name"]
 
