@@ -47,4 +47,5 @@ def init_app(app, *storages):
 
     from .views import bp
 
-    app.register_blueprint(bp, url_prefix=app.config["FS_PREFIX"])
+    if app.config["FS_SERVE"]:
+        app.register_blueprint(bp, url_prefix=app.config["FS_PREFIX"])

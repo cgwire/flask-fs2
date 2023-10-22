@@ -7,7 +7,7 @@ from flask_fs.backends.local import LocalBackend
 
 
 def test_default_configuration(app):
-    app.configure()
+    app.configure(FS_SERVE=False)
     assert not app.config["FS_SERVE"]
     assert app.config["FS_ROOT"] == join(app.instance_path, "fs")
     assert app.config["FS_PREFIX"] is None
@@ -16,7 +16,7 @@ def test_default_configuration(app):
 
 
 def test_default_debug_configuration(app):
-    app.configure(DEBUG=True)
+    app.configure()
     assert app.config["FS_SERVE"]
     assert app.config["FS_ROOT"] == join(app.instance_path, "fs")
     assert app.config["FS_PREFIX"] is None

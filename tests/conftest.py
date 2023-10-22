@@ -11,6 +11,7 @@ JPG_FILE = os.path.join(os.path.dirname(__file__), "flask.jpg")
 
 
 class TestConfig:
+    DEBUG = True
     TESTING = True
     MONGODB_DB = "flask-fs-test"
     MONGODB_HOST = "localhost"
