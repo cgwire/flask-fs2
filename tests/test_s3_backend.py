@@ -46,6 +46,7 @@ class S3BackendTest(BackendTestCase):
             region=S3_REGION,
             access_key=S3_ACCESS_KEY,
             secret_key=S3_SECRET_KEY,
+            create_bucket=True,
         )
         self.backend = S3Backend("test", self.config)
         yield

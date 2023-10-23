@@ -17,12 +17,14 @@ class SwiftBackend(BaseBackend):
 
     Expect the following settings:
 
-    - `authurl`: The Swift Auth URL
-    - `user`: The Swift user in
-    - `key`: The user API Key
-    - `auth_version`: The OpenStack auth version (optional, default: '3')
+    - `authurl`: The Swift Auth URL.
+    - `user`: The Swift user in.
+    - `key`: The user API Key.
+    - `auth_version`: The OpenStack auth version (optional, default: '3').
     - `os_options`: The OpenStack options as a dictonnary with keys such as
-        'region_name' (optional, default: None)
+        'region_name' (optional, default: None).
+    - `create_container`: Create the container if it does not
+        exist (optional, default: False).
     """
 
     def __init__(self, name, config):
@@ -39,10 +41,12 @@ class SwiftBackend(BaseBackend):
                 "region_name": getattr(config, "region_name", None),
             },
         )
-        try:
-            self.conn.head_container(self.name)
-        except swiftclient.exceptions.ClientException:
-            self.conn.put_container(self.name)
+
+        if getattr(config, "create_container", False):
+            try:
+                self.conn.head_container(self.name)
+            except swiftclient.exceptions.ClientException:
+                self.conn.put_container(self.name)
 
     def exists(self, filename):
         try:

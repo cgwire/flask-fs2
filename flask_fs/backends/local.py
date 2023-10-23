@@ -34,7 +34,7 @@ class LocalBackend(BaseBackend):
 
     Expect the following settings:
 
-    - `root`: The file system root
+    - `root`: The file system root.
     """
 
     @cached_property
