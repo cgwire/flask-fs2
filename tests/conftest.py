@@ -3,6 +3,8 @@ import os
 
 from flask import Flask
 from werkzeug.datastructures import FileStorage
+from flask_fs.crypto import AES256FileEncryptor
+
 
 import pytest
 
@@ -23,8 +25,6 @@ class TestConfigEncrypted:
     MONGODB_DB = "flask-fs-test"
     MONGODB_HOST = "localhost"
     MONGODB_PORT = 27017
-    FS_AES256_ENCRYPTED = True
-    FS_AES256_KEY = "jHEyo0GjTZDCUEnCkMcaF-LIxmnOix8b3JH633I7dls="
 
 
 class TestFlask(Flask):
@@ -41,13 +41,6 @@ def app():
     app = TestFlask("flaskfs-tests")
     app.config.from_object(TestConfig)
     yield app
-
-
-@pytest.fixture
-def app_encrypted():
-    app_encrypted = TestFlask("flaskfs-tests")
-    app_encrypted.config.from_object(TestConfigEncrypted)
-    yield app_encrypted
 
 
 @pytest.fixture
@@ -89,11 +82,15 @@ def utils(faker):
 def mock_backend(app, mocker):
     app.config["FS_BACKEND"] = "mock"
     mock = mocker.patch("flask_fs.backends.mock.MockBackend")
+    mock.return_value.encryptor = None
     yield mock
 
 
 @pytest.fixture
-def mock_encrypted_backend(app_encrypted, mocker):
-    app_encrypted.config["FS_BACKEND"] = "mock"
+def mock_encrypted_backend(app, mocker):
+    app.config["FS_BACKEND"] = "mock"
     mock = mocker.patch("flask_fs.backends.mock.MockBackend")
+    mock.return_value.encryptor = AES256FileEncryptor(
+        "jHEyo0GjTZDCUEnCkMcaF-LIxmnOix8b3JH633I7dls="
+    )
     yield mock

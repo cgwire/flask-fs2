@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 from werkzeug.utils import secure_filename, cached_property
 from werkzeug.datastructures import FileStorage
 
-from .crypto import AES256FileEncryptor
 from .errors import (
     UnauthorizedFileType,
     FileExists,
@@ -116,10 +115,6 @@ class Storage(object):
             backend_key, app.config["FS_BACKEND"]
         )
         self.backend_prefix = BACKEND_PREFIX.format(self.backend_name.upper())
-        if app.config.get("FS_AES256_ENCRYPTED", False):
-            self.encryptor = AES256FileEncryptor(app.config["FS_AES256_KEY"])
-        else:
-            self.encryptor = None
         backend_excluded_keys = [
             "".join((self.backend_prefix, k)) for k in BACKEND_EXCLUDED_CONFIG
         ]
@@ -267,8 +262,8 @@ class Storage(object):
 
         readed_content = self.backend.read(filename)
 
-        if self.encryptor is not None:
-            return self.encryptor.decrypt_entire_file(readed_content)
+        if self.backend.encryptor is not None:
+            return self.backend.encryptor.decrypt_entire_file(readed_content)
         else:
             return readed_content
 
@@ -283,8 +278,10 @@ class Storage(object):
             raise FileNotFound(filename)
 
         generator = self.backend.read_chunks(filename, chunk_size)
-        if self.encryptor is not None:
-            return self.encryptor.decrypt_file_from_generator(generator)
+        if self.backend.encryptor is not None:
+            return self.backend.encryptor.decrypt_file_from_generator(
+                generator
+            )
         else:
             return generator
 
@@ -316,20 +313,20 @@ class Storage(object):
         ):
             raise FileExists()
 
-        if self.encryptor is not None:
+        if self.backend.encryptor is not None:
             if hasattr(content, "read") or os.path.isfile(content):
-                encrypted_content_path = self.encryptor.encrypt_file(content)
+                encrypted_content_path = self.backend.encryptor.encrypt_file(
+                    content
+                )
                 try:
                     read_stream = open(encrypted_content_path, "rb")
-                    return self.backend.write(
-                        filename, read_stream
-                    )
+                    return self.backend.write(filename, read_stream)
                 finally:
                     read_stream.close()
                     os.remove(encrypted_content_path)
             else:
                 return self.backend.write(
-                    filename, self.encryptor.encrypt_content(content)
+                    filename, self.backend.encryptor.encrypt_content(content)
                 )
         else:
             return self.backend.write(filename, content)

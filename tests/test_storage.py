@@ -96,9 +96,9 @@ def test_read(app, mock_backend):
     assert storage.read("file.test") == "content"
 
 
-def test_read_encrypted(app_encrypted, mock_encrypted_backend):
+def test_read_encrypted(app, mock_encrypted_backend):
     storage = fs.Storage("test")
-    app_encrypted.configure(storage)
+    app.configure(storage)
 
     backend = mock_encrypted_backend.return_value
     backend.read.return_value = (
@@ -124,9 +124,9 @@ def test_read_chunks(app, mock_backend):
     assert data == "content"
 
 
-def test_read_chunks_encrypted(app_encrypted, mock_encrypted_backend):
+def test_read_chunks_encrypted(app, mock_encrypted_backend):
     storage = fs.Storage("test")
-    app_encrypted.configure(storage)
+    app.configure(storage)
 
     backend = mock_encrypted_backend.return_value
     backend.read_chunks.return_value = iter(
@@ -171,9 +171,9 @@ def test_write(app, mock_backend):
     backend.write.assert_called_with("file.test", "content")
 
 
-def test_write_encrypted(app_encrypted, mock_encrypted_backend):
+def test_write_encrypted(app, mock_encrypted_backend):
     storage = fs.Storage("test")
-    app_encrypted.configure(storage)
+    app.configure(storage)
 
     backend = mock_encrypted_backend.return_value
     backend.exists.return_value = False
@@ -183,7 +183,7 @@ def test_write_encrypted(app_encrypted, mock_encrypted_backend):
     args = backend.write.call_args.args
     assert args[0] == "file.test"
     assert (
-        storage.encryptor.decrypt_entire_file(args[1])
+        storage.backend.encryptor.decrypt_entire_file(args[1])
         == b"It's an encrypted file."
     )
 

@@ -36,8 +36,6 @@ def init_app(app, *storages):
     app.config.setdefault("FS_PREFIX", None)
     app.config.setdefault("FS_URL", None)
     app.config.setdefault("FS_BACKEND", DEFAULT_BACKEND)
-    app.config.setdefault("FS_AES256_ENCRYPTED", False)
-    app.config.setdefault("FS_AES256_KEY", None)
     app.config.setdefault("FS_IMAGES_OPTIMIZE", False)
     app.config.setdefault("FS_CREATE_STORAGE", False)
 
