@@ -19,10 +19,11 @@ class S3Backend(BaseBackend):
 
     Expect the following settings:
 
-    - `endpoint`: The S3 API endpoint
+    - `endpoint`: The S3 API endpoint.
     - `region`: The region to work on.
-    - `access_key`: The AWS credential access key
-    - `secret_key`: The AWS credential secret key
+    - `access_key`: The AWS credential access key.
+    - `secret_key`: The AWS credential secret key.
+    - `create_bucket`: Create the bucket if it does not exist (optional, default: False).
     """
 
     def __init__(self, name, config):
@@ -43,25 +44,26 @@ class S3Backend(BaseBackend):
 
         bucket_exists = True
 
-        try:
-            self.s3.meta.client.head_bucket(Bucket=name)
-        except ClientError as e:
-            error_code = e.response["Error"]["Code"]
-            if error_code == "404":
-                bucket_exists = False
-
-        if not bucket_exists:
+        if getattr(config, "create_bucket", False):
             try:
-                if config.region == "us-east-1":
-                    self.bucket.create()
-                else:
-                    self.bucket.create(
-                        CreateBucketConfiguration={
-                            "LocationConstraint": config.region
-                        }
-                    )
-            except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
-                pass
+                self.s3.meta.client.head_bucket(Bucket=name)
+            except ClientError as e:
+                error_code = e.response["Error"]["Code"]
+                if error_code == "404":
+                    bucket_exists = False
+
+            if not bucket_exists:
+                try:
+                    if config.region == "us-east-1":
+                        self.bucket.create()
+                    else:
+                        self.bucket.create(
+                            CreateBucketConfiguration={
+                                "LocationConstraint": config.region
+                            }
+                        )
+                except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
+                    pass
 
     def exists(self, filename):
         try:

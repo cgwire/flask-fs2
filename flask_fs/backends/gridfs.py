@@ -20,7 +20,7 @@ class GridFsBackend(BaseBackend):
 
     Expect the following settings:
 
-    - `mongo_url`: The Mongo access URL
+    - `mongo_url`: The Mongo access URL.
     - `mongo_db`: The database to store the file in.
     """
 

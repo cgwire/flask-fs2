@@ -34,6 +34,7 @@ class SwiftBackendTest(BackendTestCase):
                 "tenant_name": TENANT_NAME,
                 "region_name": REGION_NAME,
                 "auth_version": 1,
+                "create_container": True,
             }
         )
         self.backend = SwiftBackend(self.container, self.config)

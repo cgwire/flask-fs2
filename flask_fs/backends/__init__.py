@@ -1,4 +1,5 @@
 from flask_fs import files
+from flask_fs.crypto import AES256FileEncryptor
 
 __all__ = ["BaseBackend", "DEFAULT_BACKEND"]
 
@@ -17,6 +18,11 @@ class BaseBackend(object):
     def __init__(self, name, config):
         self.name = name
         self.config = config
+
+        if getattr(config, "aes256_encrypted", False):
+            self.encryptor = AES256FileEncryptor(config.aes256_key)
+        else:
+            self.encryptor = None
 
     def exists(self, filename):
         """Test wether a file exists or not given its filename in the storage"""
