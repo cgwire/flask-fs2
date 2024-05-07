@@ -439,3 +439,14 @@ class Storage(object):
         if not self.exists(filename):
             abort(404)
         return self.backend.serve(filename)
+
+    def copy(self, src, dst):
+        """
+        Copy a file from the storage to another one.
+
+        :param str src: The source filename
+        :param str dst: The destination filename
+        """
+        if not self.exists(src):
+            raise FileNotFound(src)
+        return self.backend.copy(src, dst)
