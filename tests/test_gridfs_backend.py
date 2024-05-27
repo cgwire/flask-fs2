@@ -64,6 +64,7 @@ class GridFsBackendTest(BackendTestCase):
 
     def test_config(self):
         self.backend.client.start_session()
+        self.backend.client.server_info()
         assert self.backend.client.address == ("localhost", 27017)
         assert self.backend.db.name == TEST_DB
 
