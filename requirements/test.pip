@@ -1,7 +1,7 @@
 -r s3.pip
 -r gridfs.pip
 -r swift.pip
-pytest==8.2.0
+pytest==8.2.1
 pytest-faker==2.0.0
 pytest-sugar==1.0.0
 pytest-mock==3.14.0
