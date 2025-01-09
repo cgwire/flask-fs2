@@ -30,6 +30,11 @@ jobs:
       - name: Run tests 🧪
         run: >-
           inv cover qa
+      - name: Install coveralls-python from git 📦
+        if: ${{ matrix.version == '3.13' }}
+        run: >-
+          python -m pip install
+          "coveralls @ git+https://github.com/terop/coveralls-python.git@python_313_support"
       - name: Show coverage report 📊
         run: >-
           coveralls --rcfile=coverage.rc
