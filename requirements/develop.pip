@@ -2,6 +2,7 @@ invoke==2.2.0
 tox==4.23.2
 black==24.10.0
 pre-commit==4.0.1
+autoflake==2.3.1
 -r test.pip
 -r doc.pip
 -r qa.pip

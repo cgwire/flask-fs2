@@ -90,4 +90,3 @@ def dist(ctx):
 @task(start, tox, doc, qa, dist, default=True)
 def all(ctx):
     """Run tests, reports and packaging"""
-    pass
