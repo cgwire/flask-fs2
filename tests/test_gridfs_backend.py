@@ -60,7 +60,7 @@ class GridFsBackendTest(BackendTestCase):
 
     def test_default_bucket(self):
         backend = GridFsBackend("test_bucket", self.config)
-        assert backend.fs._GridFS__collection.name == "test_bucket"
+        assert backend.fs._collection.name == "test_bucket"
 
     def test_config(self):
         self.backend.client.start_session()

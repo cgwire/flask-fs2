@@ -7,7 +7,7 @@ ROOT = abspath(join(dirname(__file__)))
 
 def compose(ctx, cmd):
     """Run a docker compose command"""
-    return ctx.run("docker compose {0}".format(cmd), pty=True)
+    return ctx.run("docker-compose {0}".format(cmd), pty=True)
 
 
 @task
