@@ -1,6 +1,7 @@
 invoke==2.2.0
-tox==4.6.4
-black==23.7.0
+tox==4.23.2
+black==24.10.0
+pre-commit==4.0.1
 -r test.pip
 -r doc.pip
 -r qa.pip
