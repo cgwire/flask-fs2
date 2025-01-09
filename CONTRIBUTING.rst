@@ -62,7 +62,7 @@ An Invoke ``tasks.py`` is provided to simplify the common tasks:
 
 You can launch invoke without any parameters, it will:
 
-- start ``docker`` middlewares containers (ensure docker and docker-compose are installed)
+- start ``docker`` middlewares containers (ensure docker and docker compose are installed)
 - execute tox to run tests on all supported Python version
 - build the documentation
 - execute flake8 quality report
