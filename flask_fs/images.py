@@ -1,6 +1,7 @@
 """
 This module handle image operations (thumbnailing, resizing...)
 """
+
 import logging
 
 from PIL import Image
