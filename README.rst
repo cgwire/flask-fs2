@@ -10,7 +10,7 @@ Simple and easy file storages for Flask.
 Compatibility
 =============
 
-Flask-FS requires Python 3.7+ and Flask/Werkzeug 2.0.0+.
+Flask-FS requires Python >= 3.9 and Flask/Werkzeug >= 2.0.0.
 
 Amazon S3 support requires Boto3.
 
@@ -26,12 +26,12 @@ You can install Flask-FS with pip:
 
 .. code-block:: console
 
-    $ pip install flask-fs
+    $ pip install flask-fs2
     # or
-    $ pip install flask-fs[s3]  # For Amazon S3 backend support
-    $ pip install flask-fs[swift]  # For OpenStack swift backend support
-    $ pip install flask-fs[gridfs]  # For GridFS backend support
-    $ pip install flask-fs[all]  # To include all dependencies for all backends
+    $ pip install flask-fs2[s3]  # For Amazon S3 backend support
+    $ pip install flask-fs2[swift]  # For OpenStack swift backend support
+    $ pip install flask-fs2[gridfs]  # For GridFS backend support
+    $ pip install flask-fs2[all]  # To include all dependencies for all backends
 
 
 Quick start
