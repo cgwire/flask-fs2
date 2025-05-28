@@ -1,10 +1,11 @@
-import pkg_resources
-import os.path
+import os
+import sys
 
 from flask import current_app, url_for, request, abort
 from urllib.parse import urljoin
 from werkzeug.utils import secure_filename, cached_property
 from werkzeug.datastructures import FileStorage
+from importlib.metadata import entry_points
 
 from .errors import (
     UnauthorizedFileType,
@@ -28,9 +29,11 @@ BACKEND_PREFIX = "FS_{0}_"
 BACKEND_EXCLUDED_CONFIG = ("BACKEND", "URL", "ROOT")
 
 # Load registered backends
-BACKENDS = dict(
-    (ep.name, ep) for ep in pkg_resources.iter_entry_points("fs.backend")
-)
+if sys.version_info >= (3, 10):
+    backends_eps = entry_points().select(group="fs.backend")
+else:
+    backends_eps = entry_points().get("fs.backend", [])
+BACKENDS = {ep.name: ep for ep in backends_eps}
 
 
 class Config(dict):
