@@ -1,9 +1,9 @@
 -r s3.pip
 -r gridfs.pip
 -r swift.pip
-pytest==8.3.5
+pytest==8.4.1
 pytest-faker==2.0.0
-pytest-sugar==1.0.0
+pytest-sugar==1.1.0
 pytest-mock==3.14.1
-pillow==11.2.1
+pillow==11.3.0
 flask-mongoengine-3==1.1.0

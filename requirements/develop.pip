@@ -1,7 +1,7 @@
 invoke==2.2.0
-tox==4.26.0
+tox==4.28.4
 black==25.1.0
-pre-commit==4.2.0
+pre-commit==4.3.0
 autoflake==2.3.1
 setuptools
 -r test.pip

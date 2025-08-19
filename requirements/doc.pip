@@ -3,4 +3,4 @@
 -r gridfs.pip
 sphinx==8.2.3
 alabaster==1.0.0
-pillow==11.2.1
+pillow==11.3.0
