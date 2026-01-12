@@ -10,7 +10,7 @@ Simple and easy file storages for Flask.
 Compatibility
 =============
 
-Flask-FS requires Python >= 3.9 and Flask/Werkzeug >= 2.0.0.
+Flask-FS requires Python >= 3.10 and Flask/Werkzeug >= 2.0.0.
 
 Amazon S3 support requires Boto3.
 
@@ -63,8 +63,8 @@ Code must follow the pep8 convention.
 About authors
 =============
 
-Flask-FS2 is maintained by CGWire, a company based in France. We help animation 
-and VFX studios to collaborate better through efficient tooling. 
+Flask-FS2 is maintained by CGWire, a company based in France. We help animation
+and VFX studios to collaborate better through efficient tooling.
 We already work with more than 70 studios around the world.
 
 It's a fork of `this project <https://github.com/noirbizarre/flask-fs>`__.

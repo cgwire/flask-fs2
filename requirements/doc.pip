@@ -1,6 +1,6 @@
 -r s3.pip
 -r swift.pip
 -r gridfs.pip
-sphinx==8.2.3
+sphinx==9.1.0
 alabaster==1.0.0
-pillow==11.3.0
+pillow==12.1.0
