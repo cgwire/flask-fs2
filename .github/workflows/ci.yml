@@ -6,16 +6,15 @@ on: [push, pull_request]
 jobs:
   ci:
     name: Test with different versions of Python 🐍
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        version:
-          ["3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.10", "pypy3.11"]
+        version: ["3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.11"]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.version }}
           cache: pip
