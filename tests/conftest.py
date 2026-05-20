@@ -15,6 +15,7 @@ JPG_FILE = os.path.join(os.path.dirname(__file__), "flask.jpg")
 class TestConfig:
     DEBUG = True
     TESTING = True
+    SERVER_NAME = "localhost"
     MONGODB_DB = "flask-fs-test"
     MONGODB_HOST = "localhost"
     MONGODB_PORT = 27017
@@ -22,6 +23,7 @@ class TestConfig:
 
 class TestConfigEncrypted:
     TESTING = True
+    SERVER_NAME = "localhost"
     MONGODB_DB = "flask-fs-test"
     MONGODB_HOST = "localhost"
     MONGODB_PORT = 27017
@@ -40,7 +42,8 @@ class TestFlask(Flask):
 def app():
     app = TestFlask("flaskfs-tests")
     app.config.from_object(TestConfig)
-    yield app
+    with app.test_request_context():
+        yield app
 
 
 @pytest.fixture

@@ -4,6 +4,25 @@ Changelog
 Current
 -------
 
+- Swift backend: per-process ``Connection`` pool (``gevent.queue.Queue`` with
+  stdlib ``queue.Queue`` fallback) so concurrent greenlets and threads no
+  longer share a single ``swiftclient.Connection``. Fixes sporadic 400s,
+  ``ConnectionReset`` errors and content corruption observed under
+  ``gevent`` workers.
+- Swift backend: ``timeout`` and ``retries`` are now passed to every
+  ``Connection`` (defaults: 60 s timeout, 5 retries).
+- Swift backend: ``write()`` pre-computes ``content_length`` and ``ETag``
+  (when content is bytes or a seekable file-like) and verifies the ETag
+  returned by Swift; mismatched objects are deleted and the call raises
+  ``ClientException`` to prevent silent corruption.
+- Swift backend: ``read_chunks()`` releases the borrowed ``Connection``
+  back to the pool when the generator is exhausted or ``close()`` is
+  called.
+- Swift backend: ``list_files()`` uses ``full_listing=True`` so containers
+  with more than 10 000 objects are fully enumerated.
+- Swift backend: new optional settings ``pool_size`` (default 20),
+  ``timeout`` (default 60) and ``retries`` (default 5).
+
 0.7.33 (2026-01-14)
 -------------------
 
