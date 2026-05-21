@@ -34,17 +34,17 @@ def test_encrypt_content(encryptor):
     assert encrypted_content != content
 
 
-def test_encrypt_file(encryptor, plaintext_file):
+def test_encrypt_file(encryptor, plaintext_file, tmp_path):
     encrypted_file_path = encryptor.encrypt_file(
-        plaintext_file, "encrypted.bin"
+        plaintext_file, str(tmp_path / "encrypted.bin")
     )
     assert os.path.exists(encrypted_file_path)
     assert os.path.getsize(encrypted_file_path) > 0
 
 
-def test_decrypt_file(encryptor, encrypted_file):
+def test_decrypt_file(encryptor, encrypted_file, tmp_path):
     decrypted_file_path = encryptor.decrypt_file(
-        encrypted_file, "decrypted.txt"
+        encrypted_file, str(tmp_path / "decrypted.txt")
     )
     assert os.path.exists(decrypted_file_path)
     assert os.path.getsize(decrypted_file_path) > 0
@@ -63,9 +63,9 @@ def test_decrypt_entire_file(encryptor, encrypted_file):
     assert decrypted_content == b"Hello, World!"
 
 
-def test_decrypt_file_invalid_token(encryptor, plaintext_file):
+def test_decrypt_file_invalid_token(encryptor, plaintext_file, tmp_path):
     encrypted_file_path = encryptor.encrypt_file(
-        plaintext_file, "encrypted.bin"
+        plaintext_file, str(tmp_path / "encrypted.bin")
     )
 
     with open(encrypted_file_path, "r+b") as file:
@@ -73,7 +73,9 @@ def test_decrypt_file_invalid_token(encryptor, plaintext_file):
         file.write(b"\x00")  # Modify one byte in the IV
 
     with pytest.raises(Exception):
-        encryptor.decrypt_file(encrypted_file_path, "decrypted.txt")
+        encryptor.decrypt_file(
+            encrypted_file_path, str(tmp_path / "decrypted.txt")
+        )
 
 
 def test_already_encrypted_file():
