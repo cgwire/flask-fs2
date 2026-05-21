@@ -46,6 +46,12 @@ class PoolExhaustedError(Exception):
     """Raised when no Connection becomes available within pool_timeout."""
 
 
+class ETagMismatchError(swiftclient.ClientException):
+    """Raised when the ETag returned by Swift differs from the locally
+    computed MD5. Subclass of ``swiftclient.ClientException`` so existing
+    callers catching the latter keep working."""
+
+
 class SwiftBackend(BaseBackend):
     """
     An OpenStack Swift backend with a per-process Connection pool.
@@ -276,7 +282,7 @@ class SwiftBackend(BaseBackend):
                     filename,
                     self.name,
                 )
-        raise swiftclient.ClientException(message)
+        raise ETagMismatchError(message)
 
     def delete(self, filename):
         with self._borrow() as conn:

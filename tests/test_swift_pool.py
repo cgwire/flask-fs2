@@ -132,9 +132,12 @@ def test_etag_mismatch_raises_and_deletes(container_name, monkeypatch):
 
     monkeypatch.setattr(swiftclient.Connection, "put_object", liar)
 
-    with pytest.raises(swiftclient.ClientException) as exc:
+    from flask_fs.backends.swift import ETagMismatchError
+
+    with pytest.raises(ETagMismatchError) as exc:
         backend.write("bad-etag", b"hello world")
     assert "ETag mismatch" in str(exc.value)
+    assert isinstance(exc.value, swiftclient.ClientException)
 
     assert not backend.exists("bad-etag")
 
