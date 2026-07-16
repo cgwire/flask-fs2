@@ -1,6 +1,7 @@
 import hashlib
 import io
 import logging
+import weakref
 
 from contextlib import contextmanager
 from dateutil import parser
@@ -152,8 +153,7 @@ class SwiftBackend(BaseBackend):
             raise PoolExhaustedError(
                 "Swift connection pool exhausted after %.1fs "
                 "(pool_size=%d) — likely slot leak from an unclosed "
-                "read_chunks() stream."
-                % (self._pool_timeout, self._pool_size)
+                "read_chunks() stream." % (self._pool_timeout, self._pool_size)
             )
 
     @contextmanager
@@ -259,15 +259,11 @@ class SwiftBackend(BaseBackend):
                 and returned_etag
                 and returned_etag.lower() != etag.lower()
             ):
-                self._handle_etag_mismatch(
-                    conn, filename, etag, returned_etag
-                )
+                self._handle_etag_mismatch(conn, filename, etag, returned_etag)
 
     def _handle_etag_mismatch(self, conn, filename, etag, returned_etag):
-        message = (
-            "ETag mismatch for {0} in {1}: local={2} remote={3}".format(
-                filename, self.name, etag, returned_etag
-            )
+        message = "ETag mismatch for {0} in {1}: local={2} remote={3}".format(
+            filename, self.name, etag, returned_etag
         )
         log.error(message)
         policy = self._etag_mismatch_policy
@@ -343,23 +339,79 @@ class SwiftBackend(BaseBackend):
     def _precompute(self, binary):
         """Return (content_length, etag) for upload.
 
-        Only bytes/bytearray are precomputed. File-likes are passed through
-        to swiftclient unchanged (chunked transfer-encoding, no client-side
-        ETag) to avoid reading the payload twice.
+        bytes/bytearray are hashed in memory. Seekable file-likes are
+        hashed from their current position, which is then restored: the
+        extra local read is the price for a server-side integrity check
+        (Content-Length + ETag) instead of an unverifiable chunked upload.
+        Non-seekable streams are passed through unchanged (chunked
+        transfer-encoding, no client-side ETag).
         """
         if isinstance(binary, (bytes, bytearray)):
             return len(binary), _md5(binary).hexdigest()
-        return None, None
+        if not (
+            hasattr(binary, "read")
+            and hasattr(binary, "seek")
+            and hasattr(binary, "tell")
+        ):
+            return None, None
+        try:
+            position = binary.tell()
+        except (OSError, ValueError, io.UnsupportedOperation):
+            return None, None
+        try:
+            digest = _md5(b"")
+            size = 0
+            chunk = binary.read(_READ_CHUNK)
+            while chunk:
+                digest.update(chunk)
+                size += len(chunk)
+                chunk = binary.read(_READ_CHUNK)
+            binary.seek(position)
+            return size, digest.hexdigest()
+        except (OSError, ValueError, TypeError, io.UnsupportedOperation):
+            try:
+                binary.seek(position)
+            except Exception:
+                log.exception(
+                    "Could not restore stream position after a failed "
+                    "ETag precomputation"
+                )
+                raise
+            return None, None
+
+
+def _release_abandoned_slot(pool, conn):
+    """
+    ``weakref.finalize`` callback for a ``_PoolReleasingStream`` dropped
+    without being fully consumed or closed: recycle its pool slot so the
+    pool does not shrink until ``PoolExhaustedError``. The Connection state
+    is unknown (mid-stream), so it is closed and the slot is put back empty
+    for a fresh Connection on next borrow. Runs from gc in an arbitrary
+    greenlet/thread context: only non-blocking calls here.
+    """
+    log.warning(
+        "read_chunks() stream was dropped without close(); "
+        "recycling its Swift connection pool slot"
+    )
+    try:
+        conn.close()
+    except Exception:
+        pass
+    try:
+        pool.put(None)
+    except Exception:
+        log.exception("Failed to recycle abandoned Swift pool slot")
 
 
 class _PoolReleasingStream:
     """Wrap a swiftclient chunk iterator so the Connection returns to the pool
     when the consumer finishes iterating or calls ``close()``.
 
-    Callers must either iterate to completion or call ``close()`` explicitly;
-    a dropped stream will leak its pool slot until process exit. This is
-    deliberate: releasing the slot from ``__del__`` is unsafe under gevent
-    because gc may run in an arbitrary greenlet/thread context.
+    Callers should iterate to completion or call ``close()`` explicitly —
+    the Connection is then reused. As a safety net, a dropped stream is
+    caught by a ``weakref.finalize`` callback that closes the Connection
+    and recycles the pool slot, so an abandoned stream (e.g. an HTTP client
+    disconnecting mid-download) can no longer starve the pool.
     """
 
     def __init__(self, inner, pool, conn):
@@ -369,6 +421,9 @@ class _PoolReleasingStream:
         self._conn = conn
         self._released = False
         self._healthy = True
+        self._finalizer = weakref.finalize(
+            self, _release_abandoned_slot, pool, conn
+        )
 
     def __iter__(self):
         return self
@@ -390,6 +445,7 @@ class _PoolReleasingStream:
         if self._released:
             return
         self._released = True
+        self._finalizer.detach()
         try:
             inner_close = getattr(self._inner, "close", None)
             if inner_close is not None:
