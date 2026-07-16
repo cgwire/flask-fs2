@@ -1,3 +1,6 @@
+import gc
+import io
+
 import pytest
 
 try:
@@ -170,3 +173,85 @@ def test_pool_size_respected(container_name):
     assert len(set(created)) == len(
         created
     ), "_new_connection returned duplicates"
+
+
+def test_precompute_file_like_returns_size_and_md5(backend):
+    import hashlib
+
+    payload = b"hello swift world"
+    stream = io.BytesIO(payload)
+    stream.read(6)  # advance position: only the rest gets uploaded
+
+    content_length, etag = backend._precompute(stream)
+
+    assert content_length == len(payload) - 6
+    assert etag == hashlib.md5(payload[6:]).hexdigest()
+    assert stream.tell() == 6, "stream position must be restored"
+
+
+def test_precompute_non_seekable_returns_none(backend):
+    class NonSeekable:
+        def read(self, size=-1):
+            return b""
+
+    content_length, etag = backend._precompute(NonSeekable())
+    assert content_length is None
+    assert etag is None
+
+
+def test_write_file_like_verifies_etag(container_name, monkeypatch):
+    backend = SwiftBackend(
+        container_name, _config(etag_mismatch_policy="raise_and_delete")
+    )
+    original = swiftclient.Connection.put_object
+
+    def liar(self, container, name, contents, **kwargs):
+        original(self, container, name, contents, **kwargs)
+        return "0" * 32
+
+    monkeypatch.setattr(swiftclient.Connection, "put_object", liar)
+
+    from flask_fs.backends.swift import ETagMismatchError
+
+    with pytest.raises(ETagMismatchError):
+        backend.write("bad-etag-file-like", io.BytesIO(b"hello world"))
+
+    assert not backend.exists("bad-etag-file-like")
+
+
+def test_write_file_like_roundtrip(backend):
+    payload = b"\x00\x01\x02" * 5000
+    backend.write("roundtrip-file-like", io.BytesIO(payload))
+    assert backend.read("roundtrip-file-like") == payload
+
+
+def test_abandoned_stream_releases_slot(container_name):
+    backend = SwiftBackend(
+        container_name, _config(pool_size=1, pool_timeout=2)
+    )
+    backend.write("leak-check", b"x" * 8192)
+
+    stream = backend.read_chunks("leak-check", chunks_size=1024)
+    next(iter(stream))  # partially consume, then abandon without close()
+    del stream
+    gc.collect()
+
+    # The only pool slot must have been recycled by the finalizer,
+    # otherwise this raises PoolExhaustedError after pool_timeout.
+    assert backend.exists("leak-check")
+
+
+def test_closed_stream_does_not_release_twice(container_name):
+    backend = SwiftBackend(
+        container_name, _config(pool_size=1, pool_timeout=2)
+    )
+    backend.write("close-check", b"x" * 8192)
+
+    stream = backend.read_chunks("close-check", chunks_size=1024)
+    for _ in stream:
+        pass
+    del stream
+    gc.collect()
+
+    assert backend._pool.qsize() == 1, "slot must be released exactly once"
+    assert backend.exists("close-check")
